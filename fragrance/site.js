@@ -16,7 +16,7 @@
       name: 'KAXNiOR',
       slogan: 'Scent, sealed in stone.',
       description: 'A sensory fragrance house. Scent shaped by nature, sealed in stone — four eaux de parfum, each crowned by a unique raw-stone stopper.',
-      logo: '/fragrance/logo-dark.png',
+      logo: '/fragrance/logo-dark.avif',
     });
     document.head.appendChild(ld);
   })();
@@ -61,7 +61,7 @@
   const scentHref = (label) => `/fragrance/scent.html?cat=${encodeURIComponent(label)}`;
 
   const navInner = `
-    <a href="/fragrance/index.html" class="nav-logo"><img src="/fragrance/logo-dark.png" alt="KAXNiOR"></a>
+    <a href="/fragrance/index.html" class="nav-logo"><img src="/fragrance/logo-dark.avif" alt="KAXNiOR"></a>
     <ul class="nav-menu">
       ${CATEGORIES.map(megaItem).join('')}
       <li class="nav-spacer"></li>
@@ -121,7 +121,7 @@
   const footerInner = `
     <div class="footer-top">
       <div class="footer-logo">
-        <img src="/fragrance/logo-dark.png" alt="KAXNiOR">
+        <img src="/fragrance/logo-dark.avif" alt="KAXNiOR">
         <p class="footer-tag">A sensory fragrance house. Scent shaped by nature, sealed in stone.</p>
       </div>
       <div class="footer-col"><h4>Shop</h4><ul>
