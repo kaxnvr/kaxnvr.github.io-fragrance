@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KAXNiOR — The House</title>
   <meta name="description" content="KAXNiOR is a sensory fragrance house built on a single idea: scent shaped by nature and sealed in stone. Every bottle is crowned by a unique raw-stone stopper — no two alike.">
-  <link rel="icon" type="image/svg+xml" href="/fragrance/favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="/kaxnior/favicon.svg">
   <meta property="og:title" content="KAXNiOR — The House">
   <meta property="og:description" content="Scent shaped by nature, sealed in stone.">
-  <meta property="og:image" content="/fragrance/img/og.jpg">
+  <meta property="og:image" content="/kaxnior/img/og.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Playfair+Display:ital,wght@0,400;1,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/fragrance/style.css?v=99">
+  <link rel="stylesheet" href="/kaxnior/style.css?v=99">
 </head>
 <body data-page="about">
   <div class="grain"></div>
@@ -66,10 +66,10 @@
         <p class="eyebrow">The Material</p>
         <h2 class="display display-l">Quiet objects for a loud sense.</h2>
         <p class="body-text" style="max-width:42ch;">Glass is left clear. Labels are set in the smallest legible type. The only ornament is the stone itself — irregular, matte, unrepeatable. We design the object to disappear so the scent can appear.</p>
-        <a class="btn-line" href="/fragrance/scent.html">Explore by scent</a>
+        <a class="btn-line" href="/kaxnior/scent.html">Explore by scent</a>
       </div>
       <div class="bs-vis bs-vis-photo reveal" data-d="1" style="aspect-ratio:2256/1685;">
-        <img src="/fragrance/img/about/atelier-material.avif?v=2" alt="Atelier material study">
+        <img src="/kaxnior/img/about/atelier-material.avif?v=2" alt="Atelier material study">
       </div>
     </section>
 
@@ -77,20 +77,20 @@
     <section class="section center wrap">
       <p class="eyebrow reveal" style="margin-bottom:24px;">The Collection</p>
       <h2 class="display display-l reveal" data-d="1" style="max-width:18ch;margin:0 auto 40px;">Four eaux de parfum, each sealed by its own stone.</h2>
-      <a class="btn-solid reveal" data-d="2" href="/fragrance/product.html?id=dusk-isle">Discover the Fragrances</a>
+      <a class="btn-solid reveal" data-d="2" href="/kaxnior/product.html?id=dusk-isle">Discover the Fragrances</a>
     </section>
 
   </main>
 
   <footer id="site-footer"></footer>
 
-  <script src="/fragrance/data.js?v=35"></script>
-  <script src="/fragrance/site.js?v=37"></script>
+  <script src="/kaxnior/data.js?v=35"></script>
+  <script src="/kaxnior/site.js?v=37"></script>
   <script>
     // Signature stones grid, built from the fragrance data
     document.getElementById('stones-grid').innerHTML = FRAGRANCES.map((f, i) => `
       <div class="stone-card reveal" data-d="${i % 4}">
-        <a class="stone-frame" href="/fragrance/product.html?id=${f.id}"><img src="${f.gallery && f.gallery[1] ? f.gallery[1] : f.img}" alt="${f.name} — ${f.stone}" loading="lazy"></a>
+        <a class="stone-frame" href="/kaxnior/product.html?id=${f.id}"><img src="${f.gallery && f.gallery[1] ? f.gallery[1] : f.img}" alt="${f.name} — ${f.stone}" loading="lazy"></a>
         <div class="stone-text">
           <span class="stone-name">${f.stone}</span>
           <span class="stone-meta">${f.name} · No. ${f.no}</span>

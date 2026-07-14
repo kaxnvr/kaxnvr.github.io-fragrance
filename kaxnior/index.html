@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KAXNiOR — A Sensory Fragrance House</title>
   <meta name="description" content="KAXNiOR is a sensory fragrance house. Scent shaped by nature, sealed in stone — four eaux de parfum, each crowned by a unique raw-stone stopper.">
-  <link rel="icon" type="image/svg+xml" href="/fragrance/favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="/kaxnior/favicon.svg">
   <meta property="og:type" content="website">
   <meta property="og:title" content="KAXNiOR — A Sensory Fragrance House">
   <meta property="og:description" content="Scent, sealed in stone. Four eaux de parfum, each crowned by a unique raw-stone stopper.">
-  <meta property="og:image" content="/fragrance/img/og.jpg">
+  <meta property="og:image" content="/kaxnior/img/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Playfair+Display:ital,wght@0,400;1,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/fragrance/style.css?v=99">
+  <link rel="stylesheet" href="/kaxnior/style.css?v=99">
 </head>
 <body data-page="home">
   <div class="grain"></div>
@@ -33,15 +33,15 @@
       <div id="hero-cam">
         <div id="hero-shelf">
           <div class="showcase-track" id="showcase-track">
-            <div class="sc-panel"><img src="/fragrance/img/main-1.avif?v=41" alt="" draggable="false"></div>
+            <div class="sc-panel"><img src="/kaxnior/img/main-1.avif?v=41" alt="" draggable="false"></div>
             <div class="sc-panel">
-              <img src="/fragrance/img/main-2.avif?v=41" alt="KAXNiOR Fragrance" draggable="false">
+              <img src="/kaxnior/img/main-2.avif?v=41" alt="KAXNiOR Fragrance" draggable="false">
               <canvas id="hero-stone" width="692" height="624" aria-hidden="true"></canvas>
             </div>
-            <div class="sc-panel"><img src="/fragrance/img/main-3.avif?v=41" alt="KAXNiOR Lip Balm" draggable="false"></div>
-            <div class="sc-panel"><img src="/fragrance/img/main-4.avif?v=41" alt="KAXNiOR Home Fragrance" draggable="false"></div>
-            <div class="sc-panel"><img src="/fragrance/img/main-5.avif?v=41" alt="KAXNiOR Hand Cream" draggable="false"></div>
-            <div class="sc-panel"><img src="/fragrance/img/main-6.avif?v=41" alt="" draggable="false"></div>
+            <div class="sc-panel"><img src="/kaxnior/img/main-3.avif?v=41" alt="KAXNiOR Lip Balm" draggable="false"></div>
+            <div class="sc-panel"><img src="/kaxnior/img/main-4.avif?v=41" alt="KAXNiOR Home Fragrance" draggable="false"></div>
+            <div class="sc-panel"><img src="/kaxnior/img/main-5.avif?v=41" alt="KAXNiOR Hand Cream" draggable="false"></div>
+            <div class="sc-panel"><img src="/kaxnior/img/main-6.avif?v=41" alt="" draggable="false"></div>
           </div>
         </div>
       </div>
@@ -60,8 +60,8 @@
           <span class="hero-intro-label">A Sensory Fragrance House</span>
           <h1 class="hero-intro-title">Scent, Sealed in Stone</h1>
           <div class="hero-intro-actions">
-            <a href="/fragrance/scent.html">Discover</a>
-            <a href="/fragrance/journal.html">View Campaign</a>
+            <a href="/kaxnior/scent.html">Discover</a>
+            <a href="/kaxnior/journal.html">View Campaign</a>
           </div>
         </div>
       </div>
@@ -75,7 +75,7 @@
       <div class="sc-card" id="hero-card">
         <div class="sc-card-text">
           <span class="sc-title" id="sc-title">Fragrance</span>
-          <a class="sc-shop" id="sc-shop" href="/fragrance/scent.html?cat=Fragrance">Shop</a>
+          <a class="sc-shop" id="sc-shop" href="/kaxnior/scent.html?cat=Fragrance">Shop</a>
         </div>
         <button class="sc-next" id="sc-next" aria-label="Next">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.2">
@@ -89,8 +89,8 @@
 
   <footer id="site-footer"></footer>
 
-  <script src="/fragrance/data.js?v=35"></script>
-  <script src="/fragrance/site.js?v=37"></script>
+  <script src="/kaxnior/data.js?v=35"></script>
+  <script src="/kaxnior/site.js?v=37"></script>
   <script>
   /* ONE continuous page built on the six-panel avif strip.
      — The strip is the old showcase, verbatim: same sizes, same card, same
@@ -103,7 +103,7 @@
      Camera math: interpolate {cx, cy, w} and derive the transform — never lerp
      scale/translate directly (the bottle would dip and rise on an arc). */
   (() => {
-    const ASSET  = '/fragrance/assets/stone-intro/';
+    const ASSET  = '/kaxnior/assets/stone-intro/';
     const FRAMES = 145;                 // 0 = back … 144 = front (the resting stone)
 
     const heroSection = document.getElementById('hero');
@@ -179,7 +179,7 @@
       const tx = stage.clientWidth / 2 - (p.offsetLeft + p.offsetWidth / 2);
       setTrack(tx, smooth);
       titleEl.textContent = it.label;
-      shopEl.href = '/fragrance/scent.html?cat=' + encodeURIComponent(it.label);
+      shopEl.href = '/kaxnior/scent.html?cat=' + encodeURIComponent(it.label);
     }
     // open with panel 2 (Fragrance) centred — this is ALSO the rest layout the
     // intro camera zooms into, so it must be asserted before the first update.
@@ -211,7 +211,7 @@
       const nearestIdx = positionCard(tx);
       if (items[nearestIdx].label !== titleEl.textContent) {
         titleEl.textContent = items[nearestIdx].label;
-        shopEl.href = '/fragrance/scent.html?cat=' + encodeURIComponent(items[nearestIdx].label);
+        shopEl.href = '/kaxnior/scent.html?cat=' + encodeURIComponent(items[nearestIdx].label);
       }
     }
     function onUp() {
