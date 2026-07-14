@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KAXNiOR — A Sensory Fragrance House</title>
+  <meta name="description" content="KAXNiOR is a sensory fragrance house. Scent shaped by nature, sealed in stone — four eaux de parfum, each crowned by a unique raw-stone stopper.">
+  <link rel="icon" type="image/svg+xml" href="/fragrance/favicon.svg">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="KAXNiOR — A Sensory Fragrance House">
+  <meta property="og:description" content="Scent, sealed in stone. Four eaux de parfum, each crowned by a unique raw-stone stopper.">
+  <meta property="og:image" content="/fragrance/img/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Playfair+Display:ital,wght@0,400;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/fragrance/style.css?v=99">
+</head>
+<body data-page="home">
+  <div class="grain"></div>
+
+  <nav id="site-nav"></nav>
+
+  <!-- HERO — ONE continuous page built on the six-panel avif strip (the old
+       showcase, verbatim: same panel sizes, same card, same arrow/drag). The
+       strip is treated as ONE grouped photo. #hero is a 350vh scroll driver;
+       #hero-stage is the sticky 100vh viewport; #hero-cam is the camera: during
+       the intro it is zoomed tight into panel 2's bottle (stoneless main-2.avif,
+       the 145-frame stone rotation drawn on a canvas riding INSIDE that panel),
+       then dollies out to identity — which IS the strip's resting presentation.
+       After landing, the old strip behaviour takes over untouched. -->
+  <section id="hero">
+    <div id="hero-stage">
+      <div id="hero-cam">
+        <div id="hero-shelf">
+          <div class="showcase-track" id="showcase-track">
+            <div class="sc-panel"><img src="/fragrance/img/main-1.avif?v=41" alt="" draggable="false"></div>
+            <div class="sc-panel">
+              <img src="/fragrance/img/main-2.avif?v=41" alt="KAXNiOR Fragrance" draggable="false">
+              <canvas id="hero-stone" width="692" height="624" aria-hidden="true"></canvas>
+            </div>
+            <div class="sc-panel"><img src="/fragrance/img/main-3.avif?v=41" alt="KAXNiOR Lip Balm" draggable="false"></div>
+            <div class="sc-panel"><img src="/fragrance/img/main-4.avif?v=41" alt="KAXNiOR Home Fragrance" draggable="false"></div>
+            <div class="sc-panel"><img src="/fragrance/img/main-5.avif?v=41" alt="KAXNiOR Hand Cream" draggable="false"></div>
+            <div class="sc-panel"><img src="/fragrance/img/main-6.avif?v=41" alt="" draggable="false"></div>
+          </div>
+        </div>
+      </div>
+      <!-- frosted glass over Act-1: covers the full viewport at p=0, lifts away
+           with the stone rotation (gone exactly at SCRUB_END), 45vh feathered
+           bottom edge so the reveal never reads as a hard split -->
+      <div id="hero-frost" aria-hidden="true"></div>
+      <!-- opening title card: sits crisp on top of the frosted glass at p=0,
+           dismisses on the FIRST small bit of scroll (gone by 10% — well before
+           the stone rotation or the frost itself finish) so it never fights the
+           reveal underneath it -->
+      <div id="hero-intro">
+        <!-- inner wrapper: carries the pointer-parallax transform so it never
+             fights the scroll-dismiss transform on the container -->
+        <div class="hero-intro-inner">
+          <span class="hero-intro-label">A Sensory Fragrance House</span>
+          <h1 class="hero-intro-title">Scent, Sealed in Stone</h1>
+          <div class="hero-intro-actions">
+            <a href="/fragrance/scent.html">Discover</a>
+            <a href="/fragrance/journal.html">View Campaign</a>
+          </div>
+        </div>
+      </div>
+      <!-- scroll cue: bottom-right corner, vertical (the old centred cue read
+           as misaligned against the leaning stone); clickable — plays the intro -->
+      <button class="hero-scroll-wrap" id="hero-scroll-cue" aria-label="Scroll to explore">
+        <span class="hs-label">Scroll</span>
+        <span class="hero-scroll"></span>
+      </button>
+      <!-- The old showcase card — fades in at CARD_ON, as the dolly settles -->
+      <div class="sc-card" id="hero-card">
+        <div class="sc-card-text">
+          <span class="sc-title" id="sc-title">Fragrance</span>
+          <a class="sc-shop" id="sc-shop" href="/fragrance/scent.html?cat=Fragrance">Shop</a>
+        </div>
+        <button class="sc-next" id="sc-next" aria-label="Next">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.2">
+            <line x1="3" y1="12" x2="20" y2="12"></line>
+            <polyline points="14 6 20 12 14 18"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <footer id="site-footer"></footer>
+
+  <script src="/fragrance/data.js?v=35"></script>
+  <script src="/fragrance/site.js?v=37"></script>
+  <script>
+  /* ONE continuous page built on the six-panel avif strip.
+     — The strip is the old showcase, verbatim: same sizes, same card, same
+       arrow + drag behaviour, gated on the card's own visibility (`cardShown`)
+       rather than `landed`, so it's usable the moment it appears.
+     — The intro: the 145-frame stone rotation is drawn on a canvas riding
+       INSIDE panel 2 (stoneless main-2.avif), scrubbed by scroll 0→60%; then a
+       camera-rect dolly 60→100% pulls from a tight stone close-up out to
+       IDENTITY — which IS the strip's normal presentation. One group, one shot.
+     Camera math: interpolate {cx, cy, w} and derive the transform — never lerp
+     scale/translate directly (the bottle would dip and rise on an arc). */
+  (() => {
+    const ASSET  = '/fragrance/assets/stone-intro/';
+    const FRAMES = 145;                 // 0 = back … 144 = front (the resting stone)
+
+    const heroSection = document.getElementById('hero');
+    const stage   = document.getElementById('hero-stage');
+    const cam     = document.getElementById('hero-cam');
+    const track   = document.getElementById('showcase-track');
+    const panels  = [...track.querySelectorAll('.sc-panel')];
+    const cv      = document.getElementById('hero-stone');
+    const ctx     = cv.getContext('2d');
+    const card    = document.getElementById('hero-card');
+    const frost   = document.getElementById('hero-frost');
+    const introEl = document.getElementById('hero-intro');
+    const titleEl = document.getElementById('sc-title');
+    const shopEl  = document.getElementById('sc-shop');
+    const nextBtn = document.getElementById('sc-next');
+    const scrollWrap = document.querySelector('.hero-scroll-wrap');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ================ the strip — the old showcase, verbatim ================
+       Panels 0 & 5 are empty buffers so the first/last product can sit dead-
+       centre. The arrow advances; dragging tracks the pointer 1:1 and the card
+       follows whichever panel is CURRENTLY nearest the stage centre; releasing
+       snaps to that product. */
+    const items = [
+      { panel: 1, label: 'Fragrance',      id: 'dusk-isle' },
+      { panel: 2, label: 'Lip Balm',       id: 'lip-bare' },
+      { panel: 3, label: 'Home Fragrance', id: 'candle-white-veil' },
+      { panel: 4, label: 'Hand Cream',     id: 'hand-pale-meridian' },
+    ];
+    let cur = 0, currentTx = 0, landed = false, cardShown = false;
+
+    function clampTx(tx) {
+      // never let the strip's edges pull inside the viewport
+      const minTx = Math.min(0, stage.clientWidth - track.scrollWidth);
+      return Math.max(minTx, Math.min(0, tx));
+    }
+    function positionCard(tx) {
+      let nearestIdx = 0, nearestDist = Infinity;
+      items.forEach((it, idx) => {
+        const p = panels[it.panel];
+        const panelCenter = p.offsetLeft + p.offsetWidth / 2 + tx;
+        const dist = Math.abs(panelCenter - stage.clientWidth / 2);
+        if (dist < nearestDist) { nearestDist = dist; nearestIdx = idx; }
+      });
+      if (card) {
+        const p = panels[items[nearestIdx].panel];
+        const panelCenter = p.offsetLeft + p.offsetWidth / 2 + tx;
+        const half = card.offsetWidth / 2;
+        const left = Math.max(half + 12, Math.min(stage.clientWidth - half - 12, panelCenter));
+        card.style.left = left + 'px';
+      }
+      return nearestIdx;
+    }
+    function setTrack(tx, smooth) {
+      tx = clampTx(tx);
+      // whole-device-pixel translate: fractional offsets antialias every panel's
+      // clip edge, bleeding a hairline of background between panels
+      tx = Math.round(tx * devicePixelRatio) / devicePixelRatio;
+      currentTx = tx;
+      if (!smooth) { track.style.transition = 'none'; if (card) card.style.transition = 'none'; }
+      track.style.transform = 'translateX(' + tx + 'px)';
+      positionCard(tx);
+      if (!smooth) {
+        void track.offsetWidth;
+        track.style.transition = '';
+        if (card) { void card.offsetWidth; card.style.transition = ''; }
+      }
+    }
+    function show(idx, smooth) {
+      cur = (idx + items.length) % items.length;
+      const it = items[cur];
+      const p = panels[it.panel];
+      const tx = stage.clientWidth / 2 - (p.offsetLeft + p.offsetWidth / 2);
+      setTrack(tx, smooth);
+      titleEl.textContent = it.label;
+      shopEl.href = '/fragrance/scent.html?cat=' + encodeURIComponent(it.label);
+    }
+    // open with panel 2 (Fragrance) centred — this is ALSO the rest layout the
+    // intro camera zooms into, so it must be asserted before the first update.
+    const open = () => show(cur, false);
+    open();
+    requestAnimationFrame(open);
+    window.addEventListener('load', open);
+    nextBtn.addEventListener('click', () => { if (cardShown) show(cur + 1, true); });
+    window.addEventListener('resize', () => { show(cur, false); update(); });
+
+    /* ---- drag / swipe (old behaviour, blocked until card is shown) ---- */
+    let dragging = false, dragStartX = 0, dragStartTx = 0;
+    track.style.touchAction = 'pan-y';
+    function onDown(e) {
+      if (!cardShown) return;
+      dragging = true;
+      dragStartX = e.clientX;
+      dragStartTx = currentTx;
+      track.classList.add('is-dragging');
+      track.style.transition = 'none';
+      if (card) card.style.transition = 'none';
+    }
+    function onMove(e) {
+      if (!dragging) return;
+      let tx = clampTx(dragStartTx + (e.clientX - dragStartX));
+      tx = Math.round(tx * devicePixelRatio) / devicePixelRatio;
+      currentTx = tx;
+      track.style.transform = 'translateX(' + tx + 'px)';
+      const nearestIdx = positionCard(tx);
+      if (items[nearestIdx].label !== titleEl.textContent) {
+        titleEl.textContent = items[nearestIdx].label;
+        shopEl.href = '/fragrance/scent.html?cat=' + encodeURIComponent(items[nearestIdx].label);
+      }
+    }
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove('is-dragging');
+      track.style.transition = '';
+      if (card) card.style.transition = '';
+      show(positionCard(currentTx), true);
+    }
+    track.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+
+    /* ================ the stone intro ================
+       Phase map leaves a landed DWELL at the end so the strip holds before the
+       page scrolls on: rotate 0→0.42, dolly 0.42→0.72, then p 0.72→1.0 is landed
+       (camera identity, interactions live). The card fades in at CARD_ON, during
+       the dolly's settle (eased camera is ~79% home by then); the arrow/drag
+       become usable the moment the card is shown, not at landed (0.72). */
+    const SCRUB_END   = 0.42;   // frames 0→144 map linearly onto p 0→0.42
+    const DOLLY_START = 0.42;
+    const DOLLY_END   = 0.72;   // dolly reaches identity here; ≥ this = landed dwell
+    const CARD_ON     = 0.62;   // card fades in here (before landing, 0.5s CSS fade)
+    const dollyEase = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; // easeInOutCubic
+    const lerp = (a,b,t) => a+(b-a)*t;
+
+    /* ---------- preload gate (ALL 145 frames pre-decoded before the animation may
+       start) — scroll is locked, releasing once the last frame lands. Pre-decoding is
+       forced SYNCHRONOUSLY via drawImage to a scratch canvas: img.decode() promises
+       are NOT used as the gate (Chrome parks them indefinitely for images outside the
+       layout tree, deadlocking the gate). Frame 0 draws as soon as it alone is ready. */
+    const frames = new Array(FRAMES);
+    let ready = reduced;
+    if (!reduced) document.documentElement.style.overflow = 'hidden';
+    const scratch = document.createElement('canvas');
+    scratch.width = cv.width; scratch.height = cv.height;
+    const sctx = scratch.getContext('2d');
+    let pending = FRAMES;
+    const settle = (i) => {
+      if (i === 0) update();
+      if (--pending === 0){
+        ready = true;
+        document.documentElement.style.overflow = '';
+        update();
+      }
+    };
+    for (let i = 0; i < FRAMES; i++){
+      const im = new Image();
+      im.onload = () => { try { sctx.drawImage(im, 0, 0); } catch(e){} settle(i); };
+      im.onerror = () => settle(i);
+      im.src = ASSET + 'stone_webp/stone_' + String(i).padStart(4,'0') + '.webp';
+      frames[i] = im;
+    }
+
+    /* ---------- camera rects (rest-layout stage px) ----------
+       All panels are native 2400 now; #hero-shelf is BOTTOM-aligned. Geometry as
+       fractions of the displayed 1792×2389 window. LABEL_Y = KAXNiOR logo top
+       (image y958 in the 2400 crop → window 0.399); the act-1 crop bottom parks
+       just above it. STONE_W sizes the close-up. */
+    const STONE_W = 0.329;
+    const LABEL_Y = 0.390;   // act-1 crop bottom. Logo text top measured y957 (frac .3987);
+                             // parking the bottom exactly there (.399) still rendered a sliver
+                             // of the logo (rounding), so back off ~20 image px — logo just hidden.
+
+    function startRect(){
+      // Act-1: a moderate, clean close-up — the stone is FILL of the viewport
+      // width (small enough to stay crisp), the crop bottom just above the KAXNiOR
+      // logo so the neck reads. Centred on the viewport x (== endRect x) → ZERO
+      // horizontal drift through the dolly. The shelf is vertically centred in the
+      // stage now, so panel-local y needs the shelf's top offset; spill above the
+      // photo reads as wall (cam-bg + feathered panel top).
+      const vw = stage.clientWidth, vh = stage.clientHeight;
+      const pw = panels[1].offsetWidth, ph = panels[1].offsetHeight;
+      const shelfTop = document.getElementById('hero-shelf').offsetTop;
+      const sw = STONE_W * pw;
+      const bottomY = shelfTop + LABEL_Y * ph;              // crop bottom = above logo
+      const FILL = vw > vh ? 0.26 : 0.46;                   // stone = this frac of viewport width
+      const w0 = sw / FILL, h0 = w0 * vh / vw;
+      return { cx: vw / 2, cy: bottomY - h0 / 2, w: w0 };
+    }
+    // the dolly's destination IS the strip's normal presentation: identity
+    const endRect = () => ({ cx: stage.clientWidth / 2, cy: stage.clientHeight / 2, w: stage.clientWidth });
+
+    function applyRect(R){
+      const vw = stage.clientWidth, vh = stage.clientHeight;
+      const S = vw / R.w;
+      const h = R.w * vh / vw;
+      const tx = -(R.cx - R.w/2) * S;
+      const ty = -(R.cy - h/2) * S;
+      cam.style.transform = `translate(${tx}px,${ty}px) scale(${S})`;
+    }
+
+    /* ---------- scrub + hand-off ---------- */
+    let drawn = -1;
+
+    function update(){
+      const max = Math.max(1, heroSection.offsetHeight - innerHeight);
+      const p = reduced ? 1 : Math.min(1, Math.max(0, scrollY / max));
+
+      /* frosted glass rides the rotation: fully covering at p=0, fully lifted
+         (its own 145vh incl. the 45vh feather) exactly at SCRUB_END. Hidden once
+         gone so the backdrop blur stops costing GPU; scrolling back re-shows it. */
+      /* frost lifts with the rotation, gone exactly at SCRUB_END */
+      if (frost){
+        const lift = reduced ? 1 : Math.min(1, p / SCRUB_END);
+        frost.style.transform = 'translate3d(0,' + (-lift * 104) + 'vh,0)';
+        frost.style.visibility = lift >= 1 ? 'hidden' : 'visible';
+      }
+
+      /* title card: a quick, raw scroll-scrub dismiss over the FIRST 10% of the
+         scroll, gone long before the reveal is meaningfully under way */
+      if (introEl){
+        const gone = reduced ? 1 : Math.min(1, p / 0.10);
+        introEl.style.opacity = String(1 - gone);
+        introEl.style.transform = 'translateY(' + (-gone * 22) + 'px)';
+        introEl.style.visibility = gone >= 1 ? 'hidden' : 'visible';
+        introEl.style.pointerEvents = gone > 0.02 ? 'none' : 'auto';
+      }
+
+      /* scroll cue: visible through the whole title phase */
+      if (scrollWrap){
+        const cueOn = p < 0.22 && ready;
+        scrollWrap.style.opacity = cueOn ? 1 : 0;
+        scrollWrap.style.pointerEvents = cueOn ? 'auto' : 'none';
+      }
+
+      const want = Math.round(Math.min(1, p / SCRUB_END) * (FRAMES - 1));
+      const f = ready ? want : Math.min(want, 0);
+      if (f !== drawn && frames[f] && frames[f].complete){
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        ctx.drawImage(frames[f], 0, 0);
+        drawn = f;
+      }
+
+      const isEnd = reduced || p >= DOLLY_END;
+
+      if (!isEnd){
+        /* the intro owns the camera; re-entering it snaps the strip back to
+           panel 2 so the zoom always targets the bottle */
+        if (cur !== 0) show(0, false);
+        const a = startRect(), b = endRect();
+        const d = dollyEase(Math.min(1, Math.max(0, (p - DOLLY_START) / (DOLLY_END - DOLLY_START))));
+        applyRect({cx: lerp(a.cx, b.cx, d), cy: lerp(a.cy, b.cy, d), w: lerp(a.w, b.w, d)});
+      } else {
+        cam.style.transform = 'none';   // identity — the strip as it always was
+      }
+
+      /* p=1 hand-off: nothing to swap — the resting stone IS frame 144 on the
+         canvas, riding inside panel 2. Fully reversible. */
+      if (isEnd !== landed) landed = isEnd;
+
+      /* card reveal is decoupled from landing: it fades in at CARD_ON, while the
+         camera is still settling — reversible on scroll-back */
+      const cardOn = reduced || p >= CARD_ON;
+      if (card && cardOn !== cardShown){
+        cardShown = cardOn;
+        card.classList.toggle('on', cardOn);
+      }
+
+    }
+
+    /* ---- scroll cue click: play the intro (smooth-scroll to the landed frame) ---- */
+    if (scrollWrap) scrollWrap.addEventListener('click', () => {
+      window.scrollTo({ top: heroSection.offsetHeight - innerHeight, behavior: 'smooth' });
+    });
+
+    addEventListener('scroll', update, {passive:true});
+    addEventListener('load', update);
+    update();
+  })();
+  </script>
+</body>
+</html>

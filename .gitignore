@@ -1,0 +1,6 @@
+# macOS metadata (AppleDouble sidecars this volume regenerates) + Finder junk
+._*
+.DS_Store
+.AppleDouble
+.Spotlight-V100
+.Trashes

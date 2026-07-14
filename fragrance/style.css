@@ -1,0 +1,918 @@
+/* ===== KAXNiOR shared styles — neutral white/grey + matte + frosted glass ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #ffffff;
+  --stone-900: #f4f4f4;
+  --stone-800: #ededed;
+  --stone-700: #e4e4e4;
+  --stone-600: #cccccc;
+  --limestone: #8a8a8a;
+  --limestone-2: #555555;
+  --paper: #3a3a3a;
+  --paper-dim: rgba(58, 58, 58, 0.6);
+  --paper-faint: rgba(58, 58, 58, 0.32);
+  --glass: rgba(255, 255, 255, 0.5);
+  --glass-line: rgba(28, 28, 28, 0.10);
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+html { scroll-behavior: smooth; }
+/* Never allow horizontal scrolling. Chrome excludes fixed off-canvas elements (bag drawer at
+   translateX(100%)) from scrollWidth, but Safari counts them into the scrollable overflow —
+   a trackpad drag then shifts the WHOLE page left, clipping text off-screen. `clip` (not
+   `hidden`) so no scroll container is created and position:sticky is untouched; the hidden
+   line before it is the fallback for engines without overflow:clip. */
+html { overflow-x: hidden; overflow-x: clip; }
+body {
+  font-family: var(--font-sans);
+  background: var(--ink);
+  color: var(--paper);
+  /* clip, NEVER hidden: once html's overflow-x stopped body→viewport propagation, a
+     `hidden` here made BODY itself the scroll container — silently killing every
+     position:sticky on the site (PDP info panel scrolled away with the page). */
+  overflow-x: clip;
+  cursor: default;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: rgba(58,58,58,0.12); color: var(--paper); }
+/* subtle page-load fade — smooths the white flash on multi-page navigation */
+@keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
+main, nav, footer { animation: pageIn 0.6s ease both; }
+@media (prefers-reduced-motion: reduce) { main, nav, footer { animation: none; } }
+
+/* thin, neutral scrollbar */
+html { scrollbar-width: thin; scrollbar-color: var(--stone-600) var(--ink); }
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: var(--stone-600); border: 3px solid var(--ink); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--limestone); }
+
+/* skip link (keyboard a11y) */
+.skip-link {
+  position: fixed; left: -9999px; top: 10px; z-index: 200;
+  background: var(--paper); color: var(--ink); padding: 11px 18px;
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none;
+}
+.skip-link:focus { left: 10px; }
+:focus-visible { outline: 1px solid var(--paper); outline-offset: 3px; }
+img { display: block; max-width: 100%; }
+a { -webkit-tap-highlight-color: transparent; }
+
+/* matte grain */
+.grain {
+  position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+  opacity: 0.35; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; gap: 44px;
+  padding: 22px 40px;
+  transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s, padding 0.4s;
+  border-bottom: 1px solid transparent;
+}
+nav.scrolled, nav.solid {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(22px) saturate(1.3);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  border-color: var(--glass-line);
+  padding: 16px 40px;
+}
+.nav-logo img { height: 26px; width: auto; display: block; opacity: 0.95; }
+
+.nav-menu { display: flex; gap: 30px; list-style: none; align-items: center; flex: 1; }
+.nav-menu > li { position: relative; }
+.nav-menu > li.has-menu { position: static; padding-bottom: 24px; margin-bottom: -24px; }
+.nav-menu > li.nav-spacer { flex: 1; }
+.nav-menu a {
+  font-size: 11px; font-weight: 300; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper); text-decoration: none; white-space: nowrap; opacity: 0.82;
+  transition: opacity 0.2s;
+}
+.nav-menu a:hover { opacity: 1; }
+.nav-menu .sep { width: 1px; height: 12px; background: var(--glass-line); }
+.nav-menu a.muted { opacity: 0.5; }
+
+/* ── MEGA MENU (hover preview) ── */
+.has-menu > a { position: relative; padding-bottom: 4px; }
+.mega {
+  position: absolute; top: 100%; left: 0; width: 100vw; margin-left: 0;
+  /* 0.62 let the homepage headline read clearly through the panel — user wants only a hint
+     of the page behind ("有点看到就可以了"), so near-opaque with the blur doing the rest. */
+  background: rgba(246,246,246,0.9);
+  backdrop-filter: blur(34px) saturate(0.4) brightness(1.04);
+  -webkit-backdrop-filter: blur(34px) saturate(0.4) brightness(1.04);
+  border-top: 1px solid var(--glass-line);
+  border-bottom: 1px solid var(--glass-line);
+  padding: 40px 40px 46px;
+  opacity: 0; visibility: hidden; transform: translateY(-8px);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+  pointer-events: none;
+}
+.has-menu:hover .mega, .has-menu.is-open .mega { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
+/* translucent only at the top of the homepage; opaque once nav is scrolled (homepage
+   scrolled down) or solid (every sub-page) so the menu stays readable */
+nav.scrolled .mega, nav.solid .mega {
+  background: rgba(248,248,248,0.975);
+  backdrop-filter: blur(30px) saturate(0.9); -webkit-backdrop-filter: blur(30px) saturate(0.9);
+}
+/* group divider inside a mega row (e.g. 4 perfumes | Discovery Set) */
+.mega-div { align-self: stretch; width: 1px; background: var(--glass-line); margin: 0 5px; }
+
+.mega-head {
+  font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase;
+  color: var(--limestone); margin-bottom: 26px; font-weight: 300;
+}
+.mega-row { display: flex; gap: 22px; flex-wrap: wrap; }
+.mega-card {
+  width: 200px; display: flex; flex-direction: column; gap: 12px; text-decoration: none;
+  opacity: 1 !important;
+}
+.mega-thumb {
+  width: 100%; aspect-ratio: 2/3; overflow: hidden; border-radius: 2px; background: #f4f4f4;
+  display: flex; align-items: center; justify-content: center;
+}
+/* every product photo (bottle / lip / candle / set) is sized 2:3 → fill the cell exactly, no frame */
+.mega-thumb img {
+  width: 100%; height: 100%; object-fit: cover; mix-blend-mode: normal; display: block;
+  transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.mega-card:hover .mega-thumb img { transform: scale(1.04); }
+.mega-thumb.ph { background: #f0f0f0; flex-direction: column; gap: 10px; }
+/* Discovery Set: shot on its own studio backdrop, not the site's default grey — feather that
+   backdrop's colour OUTWARD past the cell (thin, diffuse halo) so the photo melts into the
+   panel instead of ending on a hard mismatched edge. box-shadow renders outside the border
+   box, so the thumb's overflow:hidden (img zoom clip) doesn't clip it. (Room Fragrance had
+   the same halo in grey; user cut it — the dark grey ring read too heavy on the light panel.) */
+.mega-thumb.bg-discovery-set { background: #ebebee; box-shadow: 0 0 20px 7px rgba(233,233,236,0.9); }
+.mega-thumb.ph .ph-icon {
+  width: 34px; height: 34px; border: 1px solid var(--limestone); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; color: var(--limestone); font-weight: 200;
+}
+.mega-thumb.ph .ph-label { font-size: 8px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--paper-dim); }
+.mega-card:hover .mega-thumb.lit img { transform: scale(1.05); }
+.mega-label {
+  font-family: var(--font-serif); font-size: 16px; color: var(--paper); text-transform: none; letter-spacing: 0;
+}
+.mega-sub {
+  font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--paper-dim); margin-top: -6px;
+}
+.mega-more {
+  display: block; margin-top: 40px; padding-top: 26px; border-top: 1px solid var(--glass-line);
+  font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--limestone); text-decoration: none; transition: color 0.3s;
+}
+.mega-more:hover { color: var(--paper); }
+
+/* ── HERO — scroll-driven stone intro on the SIX-PANEL STRIP ──
+   #hero is a 350vh scroll driver (145-frame rotate 0→60% + camera dolly 60→100%).
+   #hero-stage is the sticky 100vh viewport. #hero-cam is the camera layer: the
+   whole strip (six avif panels, treated as ONE grouped photo) is transformed as a
+   unit by the camera-rect math in index.html — never lerp scale/translate
+   independently, or the bottle dips and rises on an arc. At p=1 the camera is
+   IDENTITY, i.e. the strip's normal presentation — the old showcase, untouched. */
+#hero {
+  /* panel-w = 36vw — the OLD showcase proportion (USER-DECIDED 2026-07-10,
+     supersedes the earlier 75vh full-bleed): the composition is proportional to
+     the viewport width, so the centred product (and the card) is ALWAYS centred
+     at any window size and the visible slice of the strip never changes. Normal
+     windows show small wall bands above/below (the old look); only at extreme
+     wide-short aspects (>2.08) does the viewport clip the photo's top/bottom
+     edges symmetrically — accepted trade-off. 400vh driver: rotate+dolly finish
+     at p=0.72, then a ~0.28 landed DWELL holds the strip before the page
+     scrolls on to the footer. */
+  --panel-w: 36vw;
+  position: relative; height: 400vh; width: 100%;
+}
+/* portrait / narrow: 36vw is too small — grow to (almost) viewport width */
+@media (max-aspect-ratio: 3/4) { #hero { --panel-w: 96vw; } }
+#hero-stage {
+  position: sticky; top: 0; height: 100vh; width: 100%; overflow: hidden;
+  background: #f1f2f1;   /* fallback; #hero-cam covers it */
+}
+#hero-cam {
+  position: absolute; inset: 0;
+  /* the studio-wall fill lives HERE, not on the stage, so it scales/translates
+     WITH the photo — the wall the zoomed intro reveals above a panel stays locked
+     to the photo's own wall (no relative drift → the seam never reappears). Tone
+     sampled from main-2's wall just below its top edge (feather lands here). */
+  background: #f1f2f1;
+  transform-origin: 0 0; will-change: transform;
+}
+/* the strip row is BOTTOM-FLUSH with the 100vh stage: the photo's own bottom
+   edge IS the stage bottom, so no filler band (the dark "table front" strip
+   the user rejected) ever shows below it at any viewport size — all remaining
+   space is the light wall band ABOVE the photo. At extreme wide-short aspects
+   the stage clips the photo's TOP (wall side) only. offsetTop still reflects
+   layout position, so the intro camera math keeps working. */
+#hero-shelf {
+  position: absolute; left: 0; right: 0;
+  bottom: 0;
+  height: calc(var(--panel-w) * 4 / 3);
+}
+/* panels butt together (gap:0). At fractional --panel-w the flex widths land on
+   sub-pixel bounds → a hairline of background shows between panels (the "white
+   line"). A 1px right overlap closes the layout seam, and the track translate is
+   rounded to whole device pixels in JS so clip edges never land on fractions. */
+.sc-panel { position: relative; margin-right: -1px; }
+.sc-panel:last-child { margin-right: 0; }
+/* Feather each panel's TOP edge (pure studio wall) into the wall fill. Done with
+   an OVERLAY gradient (wall colour → transparent) instead of mask-image on the
+   img: a masked img rasterises into its own buffer whose fractional edges bleed
+   a hairline of background between panels — the second "white line" source. */
+#hero .sc-panel::before {
+  /* z-index:auto — paints above the in-flow img but below the later-DOM
+     positioned #hero-stone canvas, exactly like the old img mask did */
+  content: ''; position: absolute; left: 0; top: 0; right: 0; height: 22%;
+  background: linear-gradient(to bottom, #f1f2f1 0, rgba(241,242,241,0) 100%);
+  pointer-events: none;
+}
+/* stone rotation canvas. Left shifted so the RESTING frame-144 stone centroid
+   (measured 361px in-frame) lands on the bottle centre (image x918) — was 32px
+   right of centre. width 710/1792, so left = (918 − 361/692·710)/1792 = 30.58%.
+   Vertical (top/height) unchanged: the frame's collar fully covers the bare-cap
+   disc (fixes the "异物" doubled rim). */
+#hero-stone {
+  position: absolute; left: 32.868%; top: 9.042%; width: 38.616%; height: 26.000%;
+  pointer-events: none;
+}
+/* Act-1 frosted glass: pure backdrop blur (no tint), 145vh tall so its bottom
+   45vh mask feather sits BELOW the fold at p=0 — the viewport opens fully
+   frosted, and the huge soft edge only enters the frame once the scroll lifts
+   the sheet (transform driven from update() in index.html, 0 → −145vh across
+   the stone-rotation phase). z-index 1: above the camera, below the scroll hint
+   (z2) and card (z3). visibility is toggled off by JS once fully lifted so the
+   blur stops costing GPU at rest. */
+#hero-frost {
+  /* 104vh = 100vh fully-frosted + a minimal 4vh feather (96.15% = 100/104)
+     parked below the fold at p=0; travel in JS is −104vh to match. The feather
+     is now just enough to avoid a hard line — the blurred/crisp mixing band is
+     so narrow the stone can never read as smeared. */
+  position: absolute; left: 0; top: 0; width: 100%; height: 104vh;
+  -webkit-backdrop-filter: blur(14px);
+          backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 96.15%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 0%, #000 96.15%, transparent 100%);
+  pointer-events: none; z-index: 1; will-change: transform;
+}
+/* no backdrop-filter support → a translucent wall veil approximates the frost */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  #hero-frost { background: rgba(241, 242, 241, 0.72); }
+}
+/* Opening title card — new markup, deliberately NOT reusing the dormant
+   .hero-content/.hero-label/.hero-title/.hero-actions rules below (those are
+   still live on index-b.html's own hero; scoping this fresh avoids any cross-
+   page collision). Sits above the frost (z4 > frost's z1) so the type stays
+   crisp while the glass behind it is blurred — reads as etched-on-glass. Raw
+   scroll-scrubbed opacity/transform written by JS (no CSS transition), matching
+   how the frost/stone frames are driven — a transition here would lag visibly
+   behind those in the same scroll window. */
+#hero-intro {
+  /* TRUE centre of the stage; container carries the scroll-dismiss transform */
+  position: absolute; inset: 0; z-index: 4;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; will-change: opacity, transform;
+}
+/* a slight drop below true centre — user-tuned for visual symmetry against the stone
+   below ("整体下一点点"). On the INNER so it never fights the container's JS-driven
+   dismiss transform (the inner is otherwise untouched since the parallax was cut). */
+.hero-intro-inner { transform: translateY(3vh); }
+/* NO glow/halo on the intro type — a wall-colour text-shadow was tried for legibility over
+   the dark blurred stone and rejected (milky smear, same failure as the frost's white veil).
+   Legibility comes from the actions' size/weight step-up alone. */
+.hero-intro-label {
+  display: block; font-size: 12px; font-weight: 300; letter-spacing: 0.46em;
+  text-transform: uppercase; color: var(--limestone-2); margin-bottom: 26px;
+}
+.hero-intro-title {
+  font-family: var(--font-serif); font-size: clamp(48px, 7.4vw, 112px);
+  font-weight: 400; letter-spacing: 0.01em; line-height: 1.02; color: #4c4c4c;
+  margin: 0 0 34px; text-wrap: balance;
+}
+.hero-intro-actions { display: flex; gap: 44px; justify-content: center; }
+.hero-intro-actions a {
+  /* typography mirrors .hero-intro-label exactly (same size/weight/colour — user wants the
+     two rows to read as one voice); only the letter-spacing and underline differ */
+  position: relative; font-size: 12px; font-weight: 300; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--limestone-2); text-decoration: none;
+  padding-bottom: 7px;
+}
+/* animated underline: a faint base line, and a full line that grows from the
+   left on hover/focus */
+.hero-intro-actions a::before,
+.hero-intro-actions a::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+}
+.hero-intro-actions a::before { background: var(--paper-faint); }
+.hero-intro-actions a::after {
+  background: var(--paper); transform: scaleX(0); transform-origin: left center;
+  transition: transform .45s cubic-bezier(0.16,1,0.3,1);
+}
+.hero-intro-actions a:hover::after,
+.hero-intro-actions a:focus-visible::after { transform: scaleX(1); }
+@media (max-width: 640px) {
+  .hero-intro-actions { gap: 26px; }
+  .hero-intro-label { margin-bottom: 18px; }
+  .hero-intro-title { margin-bottom: 26px; }
+}
+/* reduced motion: the whole intro is already skipped (p is forced to 1 on
+   load), so the title card would flash in then vanish on the same frame —
+   just never show it */
+@media (prefers-reduced-motion: reduce) { #hero-intro { display: none; } }
+
+/* the card rides the STAGE (not the camera): hidden during the intro, so it never
+   zooms. The photo is bottom-flush with the stage, so the old showcase inset
+   measures straight from the stage foot. */
+#hero-stage .sc-card {
+  bottom: calc(var(--panel-w) * 0.061);
+}
+@media (prefers-reduced-motion: reduce) { #intro, #hero { height: 100vh; } }
+
+/* hero-content fades in only once the dolly lands (p > 0.9), toggled via the
+   .is-in class from scroll progress — NOT a page-load keyframe, since the real
+   reveal now happens partway through a 350vh scroll, not at load. It sits at the
+   TOP of the stage (over the empty wall) because the bottom of the landed frame
+   belongs to the products + the FRAGRANCE/SHOP card. */
+.hero-content { position: absolute; top: 7vh; left: 0; right: 0; z-index: 2; text-align: center; pointer-events: none; }
+.hero-content.is-in { pointer-events: auto; }
+.hero-content > * {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .6s cubic-bezier(0.16,1,0.3,1), transform .6s cubic-bezier(0.16,1,0.3,1);
+}
+.hero-content.is-in > *:nth-child(1) { transition-delay: .05s; }
+.hero-content.is-in > *:nth-child(2) { transition-delay: .2s; }
+.hero-content.is-in > *:nth-child(3) { transition-delay: .35s; }
+.hero-content.is-in > * { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .hero-content > * { opacity: 1; transform: none; transition: none; } }
+.hero-label { font-size: 10px; font-weight: 300; letter-spacing: 0.4em; text-transform: uppercase; color: var(--limestone-2); margin-bottom: 22px; }
+.hero-title { font-family: var(--font-serif); font-size: clamp(40px, 6vw, 88px); font-weight: 400; letter-spacing: 0.02em; line-height: 1; color: #565656; margin-bottom: 30px; }
+.hero-actions { display: flex; gap: 40px; justify-content: center; }
+.hero-actions a { font-size: 11px; font-weight: 300; letter-spacing: 0.18em; text-transform: uppercase; color: var(--paper); text-decoration: none; padding-bottom: 5px; border-bottom: 1px solid var(--paper-faint); transition: border-color 0.3s; }
+.hero-actions a:hover { border-color: var(--paper); }
+/* wrapper carries the scroll-driven opacity (JS sets inline style); the pulse
+   keyframe lives on the inner element so the two don't fight over `opacity`
+   (CSS animations win over inline styles on the properties they animate). */
+/* scroll cue — bottom-RIGHT corner, vertical type + pulse line. The corner
+   placement never aligns with the (leaning) stone or bottle, so nothing can
+   read as "off-centre"; it also always sits on light ground (wall / envelope
+   paper), so no blend-mode tricks. z6: above the Act-0 envelope (z5) — the
+   cue must be readable on the very first, envelope-covered frame. Clickable:
+   smooth-scrolls the whole intro. */
+.hero-scroll-wrap {
+  position: absolute; right: 24px; bottom: 26px; z-index: 6;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  background: none; border: 0; padding: 8px 6px; cursor: pointer;
+  opacity: 0; transition: opacity .4s;
+}
+/* dark tones: the cue only lives during the CLOSE-UP (p<0.22), when the
+   corner shows the light blurred table around the bottle — the dark landed
+   front-face never coexists with the cue */
+.hs-label {
+  writing-mode: vertical-rl; font-size: 10px; font-weight: 400;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--limestone-2); transition: color .3s;
+}
+.hero-scroll-wrap:hover .hs-label { color: var(--paper); }
+.hero-scroll {
+  width: 1px; height: 44px;
+  background: linear-gradient(var(--paper-dim), transparent);
+  animation: scrollPulse 2.4s ease-in-out infinite;
+}
+@keyframes scrollPulse { 0%,100%{opacity:.25;transform:scaleY(1);} 50%{opacity:.8;transform:scaleY(.6);} }
+/* same portrait breakpoint as --panel-w:96vw above (max-aspect-ratio:3/4) — MUST sit after
+   the base .hero-intro-inner / .hs-label / .hero-scroll rules: same specificity, so on a tie
+   the later source wins regardless of the media query (a first attempt placed this block up
+   near the --panel-w rule and got silently overridden by the base rules below it — verified
+   via computed style, transform stayed the desktop +3vh). On a tall/slender viewport the
+   desktop's +3vh drop (tuned against a wide frame, stone sitting lower) reads as too much
+   empty space above the title — pull the block back UP instead. Scroll cue shrunk too: the
+   44px pulse line + 10px label read oversized/clunky here ("大的没什么质感"). */
+@media (max-aspect-ratio: 3/4) {
+  /* slender viewports: the desktop type scale runs edge-to-edge here (title at 7.4vw
+     spanned the full width at ~970px portrait) — shrink the whole block and give it side
+     padding so nothing approaches the boundary. Label and actions share one font-size so
+     the two rows stay a single voice at every width. */
+  .hero-intro-inner { transform: translateY(-4vh); padding: 0 6vw; }
+  .hero-intro-label, .hero-intro-actions a { font-size: clamp(9px, 1.2vw, 12px); }
+  .hero-intro-title { font-size: clamp(32px, 6.2vw, 64px); }
+  .hero-scroll-wrap { gap: 8px; }
+  .hs-label { font-size: 8px; }
+  .hero-scroll { height: 28px; }
+}
+
+/* ── PRODUCT SHOWCASE (home) ── */
+/* A SEAMLESS strip of 3:4 panels (no gaps — the six photos share one studio set, so
+   they read as a single continuous image). --panel-w drives EVERYTHING in this
+   section — the photo width, the section height, and every dimension of the
+   floating card (including the arrow button) — all as calc() fractions of it. That
+   is what makes the card scale in lockstep with the photo (TAMBURINS behaviour): a
+   card sized in fixed px would become disproportionately large on a mid-size
+   viewport where the vw-scaled photo has shrunk, covering the product underneath —
+   which is exactly the bug this fixes. Because every number here is a ratio of
+   --panel-w, the ratio (and therefore how much of the photo the card can ever
+   cover) stays IDENTICAL at every viewport size, mobile through ultra-wide. */
+#showcase {
+  --panel-w: 36vw;
+  /* height derives from --panel-w (× 4/3 for the 3:4 ratio) so the section always
+     hugs the photo exactly — no slack above/below at any size */
+  position: relative; height: calc(var(--panel-w) * 4 / 3); background: var(--stone-900);
+  display: flex; align-items: center; overflow: hidden;
+}
+.showcase-track {
+  display: flex; gap: 0; width: max-content;
+  /* moved by the arrow via translateX, or by dragging (see index.html) — never a
+     native scroll container, so #showcase's overflow:hidden always clips it cleanly */
+  transition: transform 0.8s cubic-bezier(0.16,1,0.3,1); will-change: transform;
+  cursor: grab; user-select: none; -webkit-user-select: none;
+}
+.showcase-track.is-dragging { cursor: grabbing; }
+.sc-panel {
+  flex: 0 0 auto; width: var(--panel-w); aspect-ratio: 3 / 4; overflow: hidden; background: #efefef;
+}
+.sc-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* TAMBURINS-style card: title + Shop on the left, circular next arrow on the right.
+   Every size below is calc(var(--panel-w) × ratio) — ratios were picked by measuring
+   the card against the photo at a normal desktop width, then locked in as fractions
+   so they hold at any size instead of drifting large/small relative to the photo. */
+.sc-card {
+  /* left is a px value set by JS each time the strip moves, so the card tracks the
+     panel's ACTUAL displayed centre (not just the screen centre — see index.html) */
+  position: absolute; left: 50%; bottom: calc(var(--panel-w) * 0.061); transform: translateX(-50%); z-index: 3;
+  transition: left 0.8s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease;
+  opacity: 0; pointer-events: none;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: calc(var(--panel-w) * 0.057);
+  width: calc(var(--panel-w) * 0.735); max-width: calc(100vw - 48px);
+  padding: calc(var(--panel-w) * 0.034) calc(var(--panel-w) * 0.036) calc(var(--panel-w) * 0.034) calc(var(--panel-w) * 0.047);
+  background: rgba(255,255,255,0.52);
+  backdrop-filter: blur(26px) saturate(1.2); -webkit-backdrop-filter: blur(26px) saturate(1.2);
+  border: 1px solid var(--glass-line);
+}
+.sc-card.on { opacity: 1; pointer-events: auto; }
+.sc-card-text { display: flex; flex-direction: column; gap: calc(var(--panel-w) * 0.016); min-width: 0; }
+.sc-title {
+  font-size: calc(var(--panel-w) * 0.0251); font-weight: 400; letter-spacing: 0.19em; text-transform: uppercase;
+  color: var(--paper); white-space: nowrap;
+}
+.sc-shop {
+  width: fit-content; font-size: calc(var(--panel-w) * 0.017); font-weight: 300; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--paper); text-decoration: none;
+  padding-bottom: 3px; border-bottom: 1px solid var(--paper-faint); transition: border-color 0.25s;
+}
+.sc-shop:hover { border-color: var(--paper); }
+.sc-next {
+  flex: 0 0 auto; width: calc(var(--panel-w) * 0.0753); height: calc(var(--panel-w) * 0.0753); border-radius: 50%;
+  border: 1px solid var(--limestone); background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: var(--paper);
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+.sc-next:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.sc-next svg { width: 45%; height: 45%; display: block; }
+
+/* ── PRODUCT DETAIL PAGE (PDP) ── */
+.pdp { padding-top: 70px; min-height: 100vh; }
+.pdp-row { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); align-items: start; }
+
+/* left column = vertical-scroll gallery of full-height slides (TAMBURINS-style) */
+.pdp-gallery { position: relative; }
+.pdp-slide { position: relative; height: calc(100vh - 70px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+/* slight separation between stacked gallery photos (TAMBURINS-style hairline gap) */
+.pdp-gallery .pdp-slide + .pdp-slide { margin-top: 2px; }
+.pdp-slide.blend { background: linear-gradient(165deg, #f6f6f6 0%, #ededed 55%, #e0e0e0 100%); }
+.pdp-slide.blend img { max-height: 78%; max-width: 78%; width: auto; height: auto; object-fit: contain; mix-blend-mode: multiply; }
+/* product photos are all the same native 1792:2400 canvas, so the slide is locked to
+   that ratio — the photo fills it exactly, edge to edge, with no crop and no margin. */
+.pdp-slide.cover { height: auto; aspect-ratio: 1792 / 2400; background: #f2f2f2; }
+.pdp-slide.cover .pdp-bg { display: none; }
+.pdp-slide.cover img { position: static; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; }
+.pdp-slide.box { background: linear-gradient(165deg, #f6f6f6 0%, #ededed 55%, #e0e0e0 100%); }
+.pdp-slide .ph-mark { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--limestone); }
+.pdp-slide .ph-mark .ring { width: 56px; height: 56px; border: 1px solid var(--limestone); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 200; }
+.pdp-slide .ph-mark .ph-label { font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--paper-dim); }
+.pdp-slide .ph-mark em { font-style: normal; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--paper-faint); }
+
+/* fixed side dots, shown only while a gallery is in view */
+.pdp-dots { position: fixed; left: 26px; top: 50%; transform: translateY(-50%); z-index: 40; display: flex; flex-direction: column; gap: 13px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; }
+.pdp-dots.show { opacity: 1; visibility: visible; }
+.pdp-dots button { width: 6px; height: 6px; padding: 0; border-radius: 50%; border: none; background: var(--stone-600); cursor: pointer; transition: background 0.3s, width 0.3s, height 0.3s; }
+.pdp-dots button.on { width: 9px; height: 9px; background: var(--paper); }
+
+/* pager progress line — pager (≤1000px) only; desktop keeps the side dots */
+.pdp-progress { display: none; }
+
+.pdp-back { position: absolute; top: 22px; left: 22px; z-index: 5; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #888; text-decoration: none; }
+.pdp-info { position: sticky; top: 70px; height: calc(100vh - 70px); padding: 100px 80px; display: flex; flex-direction: column; gap: 22px; justify-content: center; }
+.pdp-cat { font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--limestone); }
+.pdp-name { font-family: var(--font-serif); font-size: clamp(40px, 4.5vw, 70px); font-weight: 400; line-height: 1.05; }
+.pdp-sub { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-dim); }
+.pdp-divider { width: 32px; height: 1px; background: var(--limestone); margin: 6px 0; }
+.pdp-notes { display: flex; flex-direction: column; gap: 8px; }
+.pdp-notes span { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--limestone-2); }
+.pdp-desc { font-size: 13px; line-height: 1.9; color: var(--limestone-2); font-weight: 300; max-width: 420px; }
+.pdp-vol { font-size: 10px; letter-spacing: 0.18em; color: var(--limestone); }
+.pdp-box { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-faint); }
+.pdp-cta {
+  margin-top: 16px; width: fit-content; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink); background: var(--paper); padding: 16px 38px; border: none; cursor: pointer; text-decoration: none;
+  transition: opacity 0.25s;
+}
+.pdp-cta:hover { opacity: 0.8; }
+.pdp-cta.soon { background: transparent; color: var(--paper-dim); border: 1px solid var(--glass-line); cursor: default; }
+
+/* ── FOOTER ── */
+footer { padding: 70px 40px 44px; border-top: 1px solid var(--glass-line); background: var(--ink); }
+.footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 60px; }
+.footer-logo img { height: 24px; width: auto; margin-bottom: 20px; opacity: 0.9; }
+.footer-tag { font-size: 11px; line-height: 1.9; color: var(--paper-dim); max-width: 280px; font-weight: 300; }
+.footer-col h4 { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--limestone); margin-bottom: 18px; font-weight: 400; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+.footer-col a { font-size: 11px; letter-spacing: 0.06em; color: var(--limestone-2); text-decoration: none; transition: color 0.2s; font-weight: 300; }
+.footer-col a:hover { color: var(--paper); }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 30px; border-top: 1px solid var(--glass-line); }
+.footer-copy { font-size: 10px; letter-spacing: 0.15em; color: var(--paper-faint); font-weight: 300; }
+
+.nav-menu a.active { opacity: 1; color: var(--paper); }
+.nav-menu a.active::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -5px; height: 1px; background: var(--paper-faint);
+}
+.nav-menu > li > a.active { position: relative; }
+
+/* ── NAV ACTIONS (bag + burger) ── */
+.nav-actions { display: flex; align-items: center; gap: 22px; margin-left: auto; }
+.nav-bag {
+  background: none; border: none; cursor: pointer; padding: 0;
+  font-size: 11px; font-weight: 300; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--paper); opacity: 0.82; transition: opacity 0.2s; white-space: nowrap;
+}
+.nav-bag:hover { opacity: 1; }
+.nav-bag .bag-count { color: var(--limestone); }
+
+/* ── BAG DRAWER ── */
+.bag-overlay {
+  position: fixed; inset: 0; z-index: 140; background: rgba(40,40,40,0.18);
+  opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease;
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+}
+body.bag-open .bag-overlay { opacity: 1; visibility: visible; }
+body.bag-open { overflow: hidden; }
+.bag-drawer {
+  position: fixed; top: 0; right: 0; z-index: 141; height: 100%; width: 420px; max-width: 90vw;
+  background: rgba(250,250,250,0.92);
+  -webkit-backdrop-filter: blur(30px) saturate(0.6); backdrop-filter: blur(30px) saturate(0.6);
+  border-left: 1px solid var(--glass-line);
+  /* closed = pushed off-canvas AND visibility:hidden — the off-canvas half of the fix for
+     Safari's horizontal-scroll leak (see the html overflow-x rule); also keeps the hidden
+     drawer out of tab order. visibility flips AFTER the slide-out (0.5s delay) on close,
+     immediately on open. */
+  transform: translateX(100%); visibility: hidden;
+  transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), visibility 0s 0.5s;
+  display: flex; flex-direction: column;
+}
+body.bag-open .bag-drawer { transform: translateX(0); visibility: visible; transition-delay: 0s; }
+.bag-head { display: flex; align-items: center; justify-content: space-between; padding: 30px 32px; border-bottom: 1px solid var(--glass-line); }
+.bag-head span { font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--paper); }
+.bag-close { background: none; border: none; cursor: pointer; font-size: 20px; font-weight: 200; color: var(--limestone-2); line-height: 1; transition: color 0.2s; }
+.bag-close:hover { color: var(--paper); }
+.bag-items { flex: 1; overflow-y: auto; padding: 8px 32px; }
+.bag-empty { padding: 60px 0; text-align: center; font-size: 12px; letter-spacing: 0.06em; color: var(--limestone); font-weight: 300; }
+.bag-item { display: grid; grid-template-columns: 64px 1fr auto; gap: 16px; padding: 24px 0; border-bottom: 1px solid var(--glass-line); align-items: start; }
+.bag-thumb { width: 64px; aspect-ratio: 4/5; background: linear-gradient(160deg,#f2f2f2,#e6e6e6); border-radius: 2px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.bag-thumb img { height: 88%; width: auto; mix-blend-mode: multiply; }
+.bag-thumb.cover { overflow: hidden; }
+.bag-thumb.cover img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: normal; }
+.bag-thumb.ph { color: var(--limestone); font-weight: 200; }
+.bag-info .bi-name { font-family: var(--font-serif); font-size: 16px; color: var(--paper); }
+.bag-info .bi-sub { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--paper-dim); margin: 2px 0 12px; }
+.bag-qty { display: inline-flex; align-items: center; gap: 14px; border: 1px solid var(--glass-line); padding: 5px 12px; }
+.bag-qty button { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--limestone-2); line-height: 1; transition: color 0.2s; }
+.bag-qty button:hover { color: var(--paper); }
+.bag-qty span { font-size: 12px; color: var(--paper); min-width: 12px; text-align: center; }
+.bag-right { display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
+.bag-price { font-size: 12px; letter-spacing: 0.04em; color: var(--paper); }
+.bag-remove { background: none; border: none; cursor: pointer; font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--paper-faint); transition: color 0.2s; }
+.bag-remove:hover { color: var(--limestone-2); }
+.bag-foot { padding: 26px 32px 32px; border-top: 1px solid var(--glass-line); display: flex; flex-direction: column; gap: 16px; }
+.bag-subtotal { display: flex; align-items: baseline; justify-content: space-between; }
+.bag-subtotal .bs-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--limestone); }
+.bag-subtotal .bag-total { font-family: var(--font-sans); font-size: 17px; font-weight: 400; letter-spacing: 0.04em; color: var(--paper); }
+.bag-note { font-size: 9px; letter-spacing: 0.1em; color: var(--paper-faint); text-align: center; }
+.bag-checkout { text-align: center; width: 100%; }
+.bag-checkout.disabled { opacity: 0.4; pointer-events: none; }
+
+/* PDP price + bag flash */
+.pdp-price { font-family: var(--font-sans); font-size: 16px; font-weight: 400; letter-spacing: 0.04em; color: var(--paper); }
+.pdp-cta.added { background: var(--limestone-2); }
+
+/* ── MOBILE NAV (burger + drawer) ── */
+.nav-burger {
+  display: none; width: 26px; height: 16px; position: relative;
+  background: none; border: none; cursor: pointer; padding: 0; z-index: 130;
+}
+.nav-burger span {
+  position: absolute; left: 0; width: 100%; height: 1px; background: var(--paper);
+  transition: transform 0.35s ease, opacity 0.25s ease;
+}
+.nav-burger span:nth-child(1) { top: 3px; }
+.nav-burger span:nth-child(2) { bottom: 3px; }
+.nav-burger.is-x span:nth-child(1) { top: 50%; transform: translateY(-50%) rotate(45deg); }
+.nav-burger.is-x span:nth-child(2) { bottom: auto; top: 50%; transform: translateY(-50%) rotate(-45deg); }
+
+.mobile-drawer {
+  position: fixed; inset: 0; z-index: 120;
+  background: var(--stone-900);
+  opacity: 0; visibility: hidden; transition: opacity 0.45s ease, visibility 0.45s ease;
+  overflow-y: auto; padding: 110px 32px 50px;
+}
+body.drawer-open .mobile-drawer { opacity: 1; visibility: visible; }
+body.drawer-open { overflow: hidden; }
+.md-inner { display: flex; flex-direction: column; gap: 6px; max-width: 480px; margin: 0 auto; }
+.md-group { display: flex; flex-direction: column; border-bottom: 1px solid var(--glass-line); }
+.md-cat {
+  width: 100%; background: none; border: none; cursor: pointer; text-align: left;
+  font-family: var(--font-sans); font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--paper);
+  padding: 22px 0; display: flex; align-items: center; justify-content: space-between;
+}
+.md-cat .md-plus { font-size: 16px; font-weight: 200; color: var(--limestone); transition: transform 0.3s ease; }
+.md-cat[aria-expanded="true"] .md-plus { transform: rotate(45deg); }
+.md-panel { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1); }
+.md-panel a {
+  font-family: var(--font-serif); font-size: 22px; color: var(--paper); text-decoration: none;
+  padding: 8px 0 8px 4px; display: flex; align-items: baseline; gap: 12px;
+}
+.md-panel a:last-child { padding-bottom: 22px; }
+.md-panel a em { font-family: var(--font-sans); font-style: normal; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-faint); }
+.md-panel a.md-more { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--limestone); }
+.md-secondary { margin-top: 12px; border-top: none; border-bottom: none; padding-top: 0; }
+.md-secondary a { font-family: var(--font-sans); font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--limestone-2); padding: 9px 0; }
+
+/* ── SCROLL REVEALS ── */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity 1.1s cubic-bezier(0.16,1,0.3,1), transform 1.1s cubic-bezier(0.16,1,0.3,1); }
+.reveal.in { opacity: 1; transform: none; }
+.reveal[data-d="1"] { transition-delay: 0.09s; }
+.reveal[data-d="2"] { transition-delay: 0.18s; }
+.reveal[data-d="3"] { transition-delay: 0.27s; }
+.reveal[data-d="4"] { transition-delay: 0.36s; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* ── LAYOUT UTILITIES (about / scent / store) ── */
+.page { padding-top: 70px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 40px; }
+.wrap-narrow { max-width: 760px; margin: 0 auto; padding: 0 40px; }
+/* LONGHANDS here and on .page-intro/.section-sm: these classes stack with .wrap on one
+   element (class="section wrap" etc.) — a `padding: X 0` shorthand written after .wrap
+   silently zeroes the 40px side gutters (same bug class as .section-sm, fixed 2026-07-11). */
+.section { padding-top: 120px; padding-bottom: 120px; }
+/* LONGHANDS on purpose: scent.html stacks this on the same element as .wrap
+   (<section class="wrap section-sm">) — the shorthand `padding: 80px 0` silently
+   zeroed .wrap's side gutters (same specificity, later in the file), pinning the
+   scent rows to the viewport edge at every window ≤1260px. */
+.section-sm { padding-top: 80px; padding-bottom: 80px; }
+.eyebrow { font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--limestone); font-weight: 300; }
+.display { font-family: var(--font-serif); font-weight: 400; line-height: 1.06; color: var(--paper); letter-spacing: 0.01em; text-wrap: balance; }
+.lede, .hero-title { text-wrap: balance; }
+.display-xl { font-size: clamp(38px, 6vw, 86px); }
+.display-l { font-size: clamp(30px, 4.4vw, 60px); }
+.display-m { font-size: clamp(24px, 3vw, 40px); }
+.lede { font-size: clamp(15px, 1.5vw, 19px); line-height: 1.85; color: var(--limestone-2); font-weight: 300; }
+.body-text { font-size: 14px; line-height: 2; color: var(--limestone-2); font-weight: 300; }
+.rule { width: 40px; height: 1px; background: var(--limestone); }
+.center { text-align: center; }
+.btn-line {
+  display: inline-block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 300;
+  color: var(--paper); text-decoration: none; padding-bottom: 6px; border-bottom: 1px solid var(--paper-faint);
+  transition: border-color 0.3s, letter-spacing 0.3s;
+}
+.btn-line:hover { border-color: var(--paper); letter-spacing: 0.26em; }
+.btn-solid {
+  display: inline-block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 300;
+  color: var(--ink); background: var(--paper); padding: 16px 40px; text-decoration: none; transition: opacity 0.25s;
+}
+.btn-solid:hover { opacity: 0.82; }
+
+/* page intro band, shared by sub-pages */
+.page-intro { padding-top: 50px; padding-bottom: 38px; text-align: center; }
+/* the philosophy columns sit close under the intro — tighten the doubled section gap */
+.page-intro + .section { padding-top: 58px; }
+.page-intro .eyebrow { margin-bottom: 26px; }
+.page-intro .display { margin: 0 auto; max-width: 14ch; }
+.page-intro .lede { margin: 30px auto 0; max-width: none; }
+
+/* ── ABOUT ── */
+.about-manifesto { max-width: 22ch; margin: 0 auto; }
+.about-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px; }
+.about-col h3 { font-family: var(--font-serif); font-size: 22px; font-weight: 400; color: var(--paper); margin-bottom: 16px; }
+.about-col .num { font-size: 10px; letter-spacing: 0.3em; color: var(--limestone); margin-bottom: 22px; }
+.stones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+.stone-card { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.stone-frame {
+  aspect-ratio: 3/4; overflow: hidden; background: #f2f2f2;
+}
+.stone-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.stone-text { margin-left: 10px; display: flex; flex-direction: column; gap: 2px; }
+.stone-name { font-family: var(--font-serif); font-size: 17px; color: var(--paper); }
+.stone-meta { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-dim); }
+.band { background: var(--stone-900); }
+.band-split { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 0; align-items: stretch; min-height: 70vh; }
+.band-split .bs-text { padding: 90px 7vw; display: flex; flex-direction: column; justify-content: center; gap: 24px; }
+.band-split .bs-text.top { justify-content: flex-start; padding-top: 100px; }
+.band-split .bs-vis { background: linear-gradient(160deg, #efefef, #e2e2e2); display: flex; align-items: center; justify-content: center; }
+.band-split .bs-vis img { max-height: 70%; max-width: 70%; mix-blend-mode: multiply; }
+.band-split .bs-vis-photo { padding: 0; align-self: center; height: auto; min-height: 0; }
+.band-split .bs-vis-photo img { width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; object-fit: cover; mix-blend-mode: normal; display: block; }
+.band-split .bs-vis .ph-mark { display: flex; flex-direction: column; align-items: center; gap: 14px; color: var(--limestone); }
+.band-split .bs-vis .ph-mark .ring { width: 56px; height: 56px; border: 1px solid var(--limestone); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 200; font-size: 22px; }
+.band-split .bs-vis .ph-mark span { font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--paper-dim); }
+
+/* ── SCENT ── */
+.scent-row { display: grid; grid-template-columns: minmax(0,0.9fr) minmax(0,1.1fr); gap: 60px; align-items: center; padding: 70px 0; border-top: 1px solid var(--glass-line); }
+.scent-row:last-of-type { border-bottom: 1px solid var(--glass-line); }
+.scent-vis {
+  aspect-ratio: 3/4; border-radius: 2px; overflow: hidden; background: #f2f2f2;
+}
+.scent-vis img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.8s cubic-bezier(0.16,1,0.3,1); }
+.scent-row:hover .scent-vis img { transform: scale(1.04); }
+.scent-fam { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--limestone); margin-bottom: 14px; }
+.scent-name { font-family: var(--font-serif); font-size: clamp(28px, 3.4vw, 46px); font-weight: 400; color: var(--paper); margin-bottom: 8px; }
+.scent-name .no { font-size: 0.4em; color: var(--limestone); vertical-align: middle; margin-left: 10px; letter-spacing: 0.2em; }
+.pyramid { display: flex; flex-direction: column; gap: 16px; margin: 26px 0 30px; }
+.pyramid-tier { display: grid; grid-template-columns: 70px 1fr; gap: 18px; align-items: baseline; }
+.pyramid-tier .t-label { font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--limestone); }
+.pyramid-tier .t-notes { font-size: 13px; line-height: 1.7; color: var(--limestone-2); font-weight: 300; }
+.note-index { columns: 3; column-gap: 48px; }
+.note-index span { display: block; font-size: 12px; letter-spacing: 0.04em; line-height: 2.1; color: var(--limestone-2); font-weight: 300; break-inside: avoid; }
+
+/* ── STORE ── */
+.store-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--glass-line); border: 1px solid var(--glass-line); }
+.store-cell { background: var(--ink); padding: 46px 38px; min-height: 200px; display: flex; flex-direction: column; gap: 10px; }
+.store-cell .city { font-family: var(--font-serif); font-size: 24px; color: var(--paper); }
+.store-cell .addr { font-size: 12px; line-height: 1.8; color: var(--limestone-2); font-weight: 300; }
+.store-cell .status { margin-top: auto; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--limestone); }
+.signup { display: flex; gap: 0; max-width: 460px; margin: 30px auto 0; border-bottom: 1px solid var(--paper-faint); }
+.signup input {
+  flex: 1; background: none; border: none; outline: none; padding: 12px 2px; font-family: var(--font-sans);
+  font-size: 13px; color: var(--paper); letter-spacing: 0.04em;
+}
+.signup input::placeholder { color: var(--limestone); }
+.signup button {
+  background: none; border: none; cursor: pointer; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--paper); padding: 0 4px;
+}
+
+/* ── JOURNAL ── */
+.journal-featured {
+  display: grid; grid-template-columns: minmax(0, calc((100% - 84px) / 3)) minmax(0,1fr); gap: 0;
+  margin: 4px 0; align-items: center;
+  border-top: 1px solid var(--glass-line); border-bottom: 1px solid var(--glass-line);
+}
+/* the campaign image matches a grid card below exactly: the featured block and the article
+   grid both live in centred 1100px boxes, so one image column = one grid column width
+   ((100% − 84px of gaps) / 3) at the grid's 3:2 aspect ratio */
+.jf-vis { overflow: hidden; aspect-ratio: 3 / 2; align-self: center; }
+.jf-vis img { width: 100%; height: 100%; object-fit: cover; object-position: center 50%; transform: scale(1.16); transition: transform 1.2s cubic-bezier(0.16,1,0.3,1); }
+.journal-featured:hover .jf-vis img { transform: scale(1.2); }
+.jf-text { padding: 40px 32px; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+/* keep the "Read the story" underline as short as its text (flex would stretch it full-width) */
+.jf-text .btn-line { align-self: flex-start; }
+.jf-meta { font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--limestone); }
+.journal-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 42px; }
+.j-card { display: flex; flex-direction: column; gap: 16px; text-decoration: none; min-width: 0; }
+.j-thumb {
+  aspect-ratio: 3/2; border: 1px solid var(--glass-line); border-radius: 2px; overflow: hidden;
+  background: linear-gradient(160deg,#f6f6f6,#e6e6e6); display: flex; align-items: center; justify-content: center;
+}
+.j-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+.j-thumb.lit img { height: 92%; width: auto; object-fit: contain; mix-blend-mode: multiply; }
+.j-card:hover .j-thumb img { transform: scale(1.04); }
+.j-thumb .ph-mark { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--limestone); }
+.j-thumb .ph-mark .ring { width: 44px; height: 44px; border: 1px solid var(--limestone); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 200; }
+.j-thumb .ph-mark span { font-size: 8px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--paper-dim); }
+.j-cat { font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--limestone); }
+.j-title { font-family: var(--font-serif); font-size: 22px; line-height: 1.25; color: var(--paper); }
+.j-excerpt { font-size: 13px; line-height: 1.8; color: var(--limestone-2); font-weight: 300; }
+.j-meta { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--paper-faint); margin-top: 2px; }
+
+/* ── PDP enrichment ── */
+.pdp-extra { border-top: 1px solid var(--glass-line); }
+.pdp-pyramid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.pdp-pyramid .tier { padding: 70px 50px; border-right: 1px solid var(--glass-line); }
+.pdp-pyramid .tier:last-child { border-right: none; }
+.pdp-pyramid .tier .t-label { font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--limestone); margin-bottom: 22px; }
+.pdp-pyramid .tier .t-note { font-family: var(--font-serif); font-size: 19px; color: var(--paper); line-height: 1.7; }
+.pdp-stone { display: flex; justify-content: center; background: var(--stone-900); }
+.pdp-stone .ps-text { padding: 70px 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; max-width: 720px; text-align: center; }
+.pdp-stone .ps-text .body-text { max-width: 60ch; }
+.pdp-related { padding: 100px 40px; text-align: center; }
+.pdp-related .rel-row { display: flex; gap: 22px; justify-content: center; flex-wrap: wrap; margin-top: 44px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1180px) {
+  .nav-menu { display: none; }
+  .nav-burger { display: block; }
+  nav { gap: 0; }
+}
+@media (max-width: 1000px) {
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 36px; }
+  .pdp-row { grid-template-columns: 1fr; }
+  /* slender viewports: the gallery becomes a HORIZONTAL edge-to-edge pager (TAMBURINS-style,
+     user-specced 2026-07-11 — swipe left/right, one photo per page, no side margins). The
+     info block follows below; the html/body overflow-x:clip doesn't affect this scroller
+     (the gallery is its own scroll container). */
+  .pdp-gallery {
+    display: flex; align-items: flex-start; overflow-x: auto; scroll-snap-type: x mandatory;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .pdp-gallery::-webkit-scrollbar { display: none; }
+  .pdp-slide { flex: 0 0 100%; width: 100%; height: 72vh; scroll-snap-align: start; scroll-snap-stop: always; }
+  /* the vertical hairline gap between stacked slides must not become a horizontal one —
+     pages sit seamlessly edge to edge */
+  .pdp-gallery .pdp-slide + .pdp-slide { margin-top: 0; }
+  /* cover photos are a fixed 1792:2400 studio canvas. On narrow viewports the photo is inset
+     from the screen edges (a 7vw gutter, matching .band-split) and sits a touch smaller —
+     each page still snaps at full viewport width, but the image is centred inside the gutter
+     so it never touches the edge (user-specced 2026-07-14). */
+  .pdp-slide.cover { height: auto; aspect-ratio: auto; padding: 0 max(24px, 7vw); box-sizing: border-box; }
+  .pdp-slide.cover img { position: static; width: 100%; height: auto; aspect-ratio: 1792 / 2400; object-fit: cover; }
+  .pdp-info { position: static; height: auto; min-height: auto; padding: 60px 40px; }
+  /* no dots in pager mode — replaced by the thin grey progress line under the photos
+     (TAMBURINS-style, user-specced: thinner than the reference, grey) */
+  .pdp-dots { display: none; }
+  /* deliberately quiet ("比较不明显 但是又看到"): near-invisible track, thumb at the
+     same faint strength as the site's subtle underlines */
+  .pdp-progress { display: block; height: 2px; background: rgba(58,58,58,0.07); overflow: hidden; }
+  .pdp-progress i { display: block; height: 100%; width: 0; background: var(--paper-faint); will-change: transform; }
+  .about-cols { grid-template-columns: 1fr; gap: 40px; }
+  .stones { grid-template-columns: repeat(2, 1fr); }
+  .band-split { grid-template-columns: 1fr; }
+  /* narrow: inset the band photo from the screen edges (7vw gutter, aligned with .bs-text)
+     so it isn't full-bleed. No bottom margin — the .bs-text below carries its own top padding,
+     and a bottom margin here doubled the gap. .bs-vis-photo (about page) keeps its own rule
+     below; this catches the store flagship, which uses a bare .bs-vis. */
+  .band-split .bs-vis { min-height: 50vh; margin: 0 7vw; }
+  /* store flagship (image → text): tighten the gap now that the image is inset & smaller —
+     .bs-text.top and data-page scope this to the store, leaving the about page's rhythm alone */
+  .band-split .bs-text.top { padding-top: 44px; }
+  body[data-page="store"] .band-split + .section { padding-top: 48px; }
+  /* narrow/stacked viewports: re-typeset "The Material" block as one editorial column.
+     The atelier photo drops its full-bleed half and instead aligns to the same 7vw insets
+     as the text (left & right edges flush with the copy) and sits close under it — a single
+     coherent unit rather than a centered image floating below a large gap. */
+  .band-split .bs-text { padding: 76px 7vw 34px; }
+  .band-split .bs-vis-photo { min-height: 0; max-width: none; margin: 0 7vw 76px; }
+  /* narrow/square viewports: the library becomes a 2×2 grid of COMPACT cards (user-specced
+     2026-07-11 — "左右上下,不要滑动一个一个出现"): photo, family, name, view link; the
+     top/heart/base pyramid is desktop-only (full detail lives on the PDP). Categories with
+     2–3 items flow naturally (2×1 / 2+1). Desktop >1000px keeps the two-column rows. */
+  #scent-rows { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 56px 24px; padding-top: 10px; }
+  .scent-row { display: block; padding: 0; border-top: none; }
+  .scent-row:last-of-type { border-bottom: none; }
+  /* .scent-row is display:block here, so .scent-vis (an <a>) reverts to inline —
+     which silently DROPS its aspect-ratio:3/4, letting the <img height:100%> resolve
+     to an unstable natural height (ragged 2×2 rows + band overlap at slender ratios).
+     Force it block so the 3/4 box holds. */
+  .scent-vis { display: block; margin-bottom: 18px; }
+  .scent-fam { margin-bottom: 10px; }
+  .scent-name { font-size: clamp(18px, 2.6vw, 26px); }
+  .pyramid { display: none; }
+  .scent-row .btn-line { margin-top: 14px; }
+  .pdp-pyramid { grid-template-columns: 1fr; }
+  .pdp-pyramid .tier { border-right: none; border-bottom: 1px solid var(--glass-line); padding: 44px 40px; }
+  .store-grid { grid-template-columns: 1fr; }
+  .note-index { columns: 2; }
+  /* stacked: the featured image matches the article thumbnails below — same width cap and
+     4:3 box, centred on the same axis. The featured now lives inside its own .wrap (like the
+     grid), so it inherits the 40px gutters directly — no extra calc mirror, or it double-insets. */
+  .journal-featured { grid-template-columns: 1fr; max-width: min(560px, 100%); margin: 0 auto; }
+  .jf-vis { min-height: 0; aspect-ratio: 4 / 3; }
+  /* one-column article cards: cap + centre, and calm the thumb to 4:3 (user-specced) —
+     full-width 3:2 thumbs dominated the viewport and the text ran to the gutter line */
+  .journal-grid { grid-template-columns: 1fr; gap: 48px; }
+  .j-card { width: min(560px, 100%); margin: 0 auto; }
+  .j-thumb { aspect-ratio: 4/3; }
+}
+@media (max-width: 600px) {
+  .wrap, .wrap-narrow { padding: 0 24px; }
+  .section { padding-top: 80px; padding-bottom: 80px; }
+  .stones { grid-template-columns: 1fr; }
+  .note-index { columns: 1; }
+  .footer-top { grid-template-columns: 1fr; }
+  nav { padding: 18px 24px; }
+  nav.scrolled, nav.solid { padding: 14px 24px; }
+  .page-intro { padding-top: 72px; padding-bottom: 70px; }
+  /* phones get a fixed (not vw-scaled) panel width — 36vw of a 390px phone would be
+     a tiny 140px photo. Overriding just this ONE variable is enough: the card, the
+     arrow button, the section height etc. all read from --panel-w already (see the
+     PRODUCT SHOWCASE rules above), so they resize with it automatically and stay in
+     the same proportion to the photo as on desktop — never covering the product. */
+  #showcase { --panel-w: 300px; }
+  /* home hero keeps viewport-filling panels on phones too (75vh would overflow
+     the narrow screen, so cap by width) */
+  #hero { --panel-w: 96vw; }
+}
