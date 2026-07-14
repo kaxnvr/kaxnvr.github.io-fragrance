@@ -40,7 +40,7 @@
     const slides = srcs.map((src) => {
       const cover = p.fit === 'cover';
       const bg = cover ? `<div class="pdp-bg" style="background-image:url('${src}')"></div>` : '';
-      return `<div class="pdp-slide ${cover ? 'cover' : 'blend'}">${bg}<img src="${src}" alt="${p.name}" loading="lazy"></div>`;
+      return `<div class="pdp-slide ${cover ? 'cover' : 'blend'}">${bg}<img src="${src}" alt="${p.name}" loading="eager"></div>`;
     });
     // Box-design placeholder = last slide for products whose packaging isn't shown yet.
     // Skipped once a category's gallery already carries a real box/pouch shot.

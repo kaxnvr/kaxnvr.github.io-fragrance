@@ -484,12 +484,14 @@ nav.scrolled .mega, nav.solid .mega {
 /* slight separation between stacked gallery photos (TAMBURINS-style hairline gap) */
 .pdp-gallery .pdp-slide + .pdp-slide { margin-top: 2px; }
 .pdp-slide.blend { background: linear-gradient(165deg, #f6f6f6 0%, #ededed 55%, #e0e0e0 100%); }
-.pdp-slide.blend img { max-height: 78%; max-width: 78%; width: auto; height: auto; object-fit: contain; mix-blend-mode: multiply; }
-/* product photos are all the same native 1792:2400 canvas, so the slide is locked to
-   that ratio — the photo fills it exactly, edge to edge, with no crop and no margin. */
-.pdp-slide.cover { height: auto; aspect-ratio: 1792 / 2400; background: #f2f2f2; }
+.pdp-slide.cover { background: #f2f2f2; }
+/* product image slides: full-bleed EDGE TO EDGE (no side margin) at every viewport size, and
+   the image is always shown COMPLETE — never cropped. The slide height follows each image's own
+   ratio (width:100%/height:auto/contain), so mixed ratios (portrait, landscape, square) all stay
+   uncropped and flush to both edges (user-specced 2026-07-14). */
+.pdp-slide.blend, .pdp-slide.cover { display: block; height: auto; aspect-ratio: auto; padding: 0; }
+.pdp-slide.blend img, .pdp-slide.cover img { position: static; display: block; width: 100%; height: auto; max-width: none; max-height: none; object-fit: contain; mix-blend-mode: normal; }
 .pdp-slide.cover .pdp-bg { display: none; }
-.pdp-slide.cover img { position: static; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; }
 .pdp-slide.box { background: linear-gradient(165deg, #f6f6f6 0%, #ededed 55%, #e0e0e0 100%); }
 .pdp-slide .ph-mark { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--limestone); }
 .pdp-slide .ph-mark .ring { width: 56px; height: 56px; border: 1px solid var(--limestone); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 200; }
@@ -834,12 +836,10 @@ body.drawer-open { overflow: hidden; }
   /* the vertical hairline gap between stacked slides must not become a horizontal one —
      pages sit seamlessly edge to edge */
   .pdp-gallery .pdp-slide + .pdp-slide { margin-top: 0; }
-  /* cover photos are a fixed 1792:2400 studio canvas. On narrow viewports the photo is inset
-     from the screen edges (a 7vw gutter, matching .band-split) and sits a touch smaller —
-     each page still snaps at full viewport width, but the image is centred inside the gutter
-     so it never touches the edge (user-specced 2026-07-14). */
-  .pdp-slide.cover { height: auto; aspect-ratio: auto; padding: 0 max(24px, 7vw); box-sizing: border-box; }
-  .pdp-slide.cover img { position: static; width: 100%; height: auto; aspect-ratio: 1792 / 2400; object-fit: cover; }
+  /* narrow viewports: every product image page is full-bleed edge-to-edge with NO gutter and the
+     whole image visible (uncropped) — supersedes the earlier 7vw-inset spec (2026-07-14). */
+  .pdp-slide.blend, .pdp-slide.cover { display: block; height: auto; aspect-ratio: auto; padding: 0; }
+  .pdp-slide.blend img, .pdp-slide.cover img { position: static; width: 100%; height: auto; aspect-ratio: auto; object-fit: contain; }
   .pdp-info { position: static; height: auto; min-height: auto; padding: 60px 40px; }
   /* no dots in pager mode — replaced by the thin grey progress line under the photos
      (TAMBURINS-style, user-specced: thinner than the reference, grey) */
