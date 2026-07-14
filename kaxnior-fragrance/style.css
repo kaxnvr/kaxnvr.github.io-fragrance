@@ -465,13 +465,17 @@ nav.scrolled .mega, nav.solid .mega {
   padding-bottom: 3px; border-bottom: 1px solid var(--paper-faint); transition: border-color 0.25s;
 }
 .sc-shop:hover { border-color: var(--paper); }
+/* one steady ring + arrow, BOTH always the card-text colour (--paper #3a3a3a) — never grey,
+   never filled/inverted on hover, and no second ring on click (the old double circle was the
+   browser focus outline stacking on the border). User-specced 2026-07-14. */
 .sc-next {
   flex: 0 0 auto; width: calc(var(--panel-w) * 0.0753); height: calc(var(--panel-w) * 0.0753); border-radius: 50%;
-  border: 1px solid var(--limestone); background: none; cursor: pointer;
+  border: 1px solid var(--paper); background: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center; color: var(--paper);
-  transition: background 0.25s, color 0.25s, border-color 0.25s;
 }
-.sc-next:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.sc-next:hover { background: none; color: var(--paper); border-color: var(--paper); }
+.sc-next:focus { outline: none; }
+.sc-next:focus-visible { outline: none; border-width: 2px; } /* keyboard cue stays a SINGLE ring */
 .sc-next svg { width: 45%; height: 45%; display: block; }
 
 /* ── PRODUCT DETAIL PAGE (PDP) ── */
