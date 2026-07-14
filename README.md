@@ -2,12 +2,12 @@
 
 Public site for **KAXNiOR**, a sensory fragrance house. Static site hosted on GitHub Pages.
 
-**Live:** https://kaxnvr.github.io/kaxnior/
+**Live:** https://kaxnvr.github.io/kaxnior-fragrance/
 
 ## Structure
-- `kaxnior/` — the site (all pages, styles, scripts, images, and the stone-intro frame sequence)
-- `kaxnior/index.html` — homepage (the stone-intro scroll experience)
-- `index.html` (repo root) — redirects `/` → `/kaxnior/`
+- `kaxnior-fragrance/` — the site (all pages, styles, scripts, images, and the stone-intro frame sequence)
+- `kaxnior-fragrance/index.html` — homepage (the stone-intro scroll experience)
+- `index.html` (repo root) — redirects `/` → `/kaxnior-fragrance/`
 - `404.html` — site-wide custom not-found page
 - `.nojekyll` — serve files as-is (no Jekyll processing)
 
@@ -16,7 +16,7 @@ The stone intro scrubs a video/frame sequence and needs HTTP Range support, so s
 
 ```bash
 python3 -m http.server 8000
-# then open http://localhost:8000/kaxnior/
+# then open http://localhost:8000/kaxnior-fragrance/
 ```
 
-All internal paths are absolute under `/kaxnior/`, so the site is served from the domain root.
+All internal paths are absolute under `/kaxnior-fragrance/`, so the site is served from the domain root.
