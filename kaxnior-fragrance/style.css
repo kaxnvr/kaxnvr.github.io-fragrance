@@ -185,11 +185,18 @@ nav.scrolled .mega, nav.solid .mega {
      edges symmetrically — accepted trade-off. 400vh driver: rotate+dolly finish
      at p=0.72, then a ~0.28 landed DWELL holds the strip before the page
      scrolls on to the footer. */
-  --panel-w: 36vw;
+  /* CAPPED at 72vh so the whole photo always fits on screen: at wide-short
+     viewports (phone/iPad landscape) the strip scales DOWN instead of clipping
+     top/bottom (user-specced 2026-07-14, supersedes the old ">2.08 aspect clips
+     symmetrically" trade-off). 72vh (not vh minus the nav) keeps panel-w ≥ vw/3
+     at phone-landscape aspects (≈2.17) so panel 1 can still be CENTRED within
+     clampTx — the sliver the nav then overlaps is the photo's top ~22% feathered
+     wall, i.e. featureless; all content (stone/bottle/table) stays visible. */
+  --panel-w: min(36vw, 72vh);
   position: relative; height: 400vh; width: 100%;
 }
 /* portrait / narrow: 36vw is too small — grow to (almost) viewport width */
-@media (max-aspect-ratio: 3/4) { #hero { --panel-w: 96vw; } }
+@media (max-aspect-ratio: 3/4) { #hero { --panel-w: min(96vw, 72vh); } }
 #hero-stage {
   position: sticky; top: 0; height: 100vh; width: 100%; overflow: hidden;
   background: #f1f2f1;   /* fallback; #hero-cam covers it */
@@ -746,6 +753,9 @@ body.drawer-open { overflow: hidden; }
 .scent-vis img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.8s cubic-bezier(0.16,1,0.3,1); }
 .scent-row:hover .scent-vis img { transform: scale(1.04); }
 .scent-fam { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--limestone); margin-bottom: 14px; }
+/* the View link must never read LARGER than the family label above it (user-specced
+   2026-07-14) — same 10px as .scent-fam */
+.scent-row .btn-line { font-size: 10px; }
 .scent-name { font-family: var(--font-serif); font-size: clamp(28px, 3.4vw, 46px); font-weight: 400; color: var(--paper); margin-bottom: 8px; }
 .scent-name .no { font-size: 0.4em; color: var(--limestone); vertical-align: middle; margin-left: 10px; letter-spacing: 0.2em; }
 .pyramid { display: flex; flex-direction: column; gap: 16px; margin: 26px 0 30px; }
@@ -902,7 +912,11 @@ body.drawer-open { overflow: hidden; }
   .j-thumb { aspect-ratio: 4/3; }
 }
 @media (max-width: 600px) {
-  .wrap, .wrap-narrow { padding: 0 24px; }
+  /* LONGHANDS only: the `padding: 0 24px` shorthand was silently zeroing the
+     vertical padding of every .wrap that stacks with .section/.section-sm on one
+     element (grey band touched the last View link on scent) — same bug class as
+     the 2026-07-11 fix, reintroduced by this mobile gutter rule. */
+  .wrap, .wrap-narrow { padding-left: 24px; padding-right: 24px; }
   .section { padding-top: 80px; padding-bottom: 80px; }
   .stones { grid-template-columns: 1fr; }
   .note-index { columns: 1; }
