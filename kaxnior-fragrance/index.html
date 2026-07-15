@@ -122,6 +122,21 @@
     const scrollWrap = document.querySelector('.hero-scroll-wrap');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    /* --panel-w is JS-OWNED, in px. iOS Safari does NOT reliably re-evaluate CSS
+       custom properties whose value contains viewport units after a rotation —
+       the var keeps the OLD orientation's resolved pixels, so every panel/card/
+       shelf sized from it renders "squeezed" until a manual refresh. Writing the
+       resolved px INLINE (highest cascade, beats the stylesheet var AND the 3/4
+       media query) sidesteps that whole bug class; the stylesheet's vw/vh value
+       remains only as a no-JS first-paint fallback. Mirrors the CSS exactly:
+       portrait (vw/vh ≤ 3/4) → 96vw, else 36vw, both capped at 72vh. */
+    function sizePanels(){
+      const vw = innerWidth, vh = innerHeight;
+      const base = (vw / vh <= 0.75 ? 0.96 : 0.36) * vw;
+      heroSection.style.setProperty('--panel-w', Math.round(Math.min(base, 0.72 * vh)) + 'px');
+    }
+    sizePanels();
+
     /* ================ the strip — the old showcase, verbatim ================
        Panels 0 & 5 are empty buffers so the first/last product can sit dead-
        centre. The arrow advances; dragging tracks the pointer 1:1 and the card
@@ -205,6 +220,7 @@
          that must NOT trigger a remap (it would fight the user's scroll). */
     let lastP = 0, lastW = innerWidth, lastH = innerHeight;   // trusted state (see update())
     function relayout(){
+      sizePanels();   // re-resolve --panel-w in px FIRST — iOS won't do it for us
       const max = Math.max(1, heroSection.offsetHeight - innerHeight);
       if (lastP < 1){
         const target = Math.round(lastP * max);
