@@ -13,7 +13,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Playfair+Display:ital,wght@0,400;1,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/kaxnior-fragrance/style.css?v=99">
+  <link rel="stylesheet" href="/kaxnior-fragrance/style.css?v=100">
 </head>
 <body data-page="home">
   <div class="grain"></div>
@@ -122,20 +122,14 @@
     const scrollWrap = document.querySelector('.hero-scroll-wrap');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* --panel-w is JS-OWNED, in px. iOS Safari does NOT reliably re-evaluate CSS
-       custom properties whose value contains viewport units after a rotation —
-       the var keeps the OLD orientation's resolved pixels, so every panel/card/
-       shelf sized from it renders "squeezed" until a manual refresh. Writing the
-       resolved px INLINE (highest cascade, beats the stylesheet var AND the 3/4
-       media query) sidesteps that whole bug class; the stylesheet's vw/vh value
-       remains only as a no-JS first-paint fallback. Mirrors the CSS exactly:
-       portrait (vw/vh ≤ 3/4) → 96vw, else 36vw, both capped at 72vh. */
-    function sizePanels(){
-      const vw = innerWidth, vh = innerHeight;
-      const base = (vw / vh <= 0.75 ? 0.96 : 0.36) * vw;
-      heroSection.style.setProperty('--panel-w', Math.round(Math.min(base, 0.72 * vh)) + 'px');
-    }
-    sizePanels();
+    /* Panel/card sizing is CSS-ONLY now (2026-07-16). The old JS-owned inline
+       `--panel-w` px write was itself the rotation bug: iOS fires resize events on
+       an unreliable schedule around a rotate, so the inline value written from the
+       OLD orientation's innerWidth/innerHeight overrode the stylesheet's fresh
+       media-query value indefinitely — panels froze at the previous orientation's
+       geometry ("squeezed" photos) until a manual refresh. Plain media queries +
+       literal vw/vh + aspect-ratio re-resolve atomically with the viewport, no JS
+       events involved — the same reason TAMBURINS-style sites survive rotation. */
 
     /* ================ the strip — the old showcase, verbatim ================
        Panels 0 & 5 are empty buffers so the first/last product can sit dead-
@@ -220,7 +214,8 @@
          that must NOT trigger a remap (it would fight the user's scroll). */
     let lastP = 0, lastW = innerWidth, lastH = innerHeight;   // trusted state (see update())
     function relayout(){
-      sizePanels();   // re-resolve --panel-w in px FIRST — iOS won't do it for us
+      // panel/card sizing is pure CSS (media queries re-resolve on their own);
+      // this only re-centres the strip and remaps scroll to preserve progress p
       const max = Math.max(1, heroSection.offsetHeight - innerHeight);
       if (lastP < 1){
         const target = Math.round(lastP * max);
