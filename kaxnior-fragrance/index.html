@@ -90,7 +90,7 @@
   <footer id="site-footer"></footer>
 
   <script src="/kaxnior-fragrance/data.js?v=35"></script>
-  <script src="/kaxnior-fragrance/site.js?v=37"></script>
+  <script src="/kaxnior-fragrance/site.js?v=38"></script>
   <script>
   /* ONE continuous page built on the six-panel avif strip.
      — The strip is the old showcase, verbatim: same sizes, same card, same
@@ -301,32 +301,65 @@
     const dollyEase = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; // easeInOutCubic
     const lerp = (a,b,t) => a+(b-a)*t;
 
-    /* ---------- preload gate (ALL 145 frames pre-decoded before the animation may
-       start) — scroll is locked, releasing once the last frame lands. Pre-decoding is
-       forced SYNCHRONOUSLY via drawImage to a scratch canvas: img.decode() promises
-       are NOT used as the gate (Chrome parks them indefinitely for images outside the
-       layout tree, deadlocking the gate). Frame 0 draws as soon as it alone is ready. */
+    /* ---------- ladder preload (scroll unlocks after the FIRST wave, ~19 frames /
+       ~0.5MB — not after all 145). Waves: stride 8 → 4 → 2 → 1; each wave fills the
+       gaps of the last, so coverage is always uniform across the rotation and the
+       canvas can draw the NEAREST loaded frame at any scroll position — no blanks,
+       no jumps, just granularity that refines as the tail downloads. Fast scrolls
+       only ever sample a handful of frames, so the coarse first wave reads smooth.
+       Pre-decoding stays forced SYNCHRONOUSLY via drawImage to a scratch canvas:
+       img.decode() promises are NOT used (Chrome parks them indefinitely for images
+       outside the layout tree). Frame 0 draws as soon as it alone is ready. */
     const frames = new Array(FRAMES);
+    const loaded = new Array(FRAMES).fill(false);
     let ready = reduced;
     if (!reduced) document.documentElement.style.overflow = 'hidden';
     const scratch = document.createElement('canvas');
     scratch.width = cv.width; scratch.height = cv.height;
     const sctx = scratch.getContext('2d');
-    let pending = FRAMES;
-    const settle = (i) => {
-      if (i === 0) update();
-      if (--pending === 0){
-        ready = true;
-        document.documentElement.style.overflow = '';
-        update();
-      }
-    };
+
+    const waves = [[], [], [], []];        // stride 8, then the gaps of 4, 2, 1
     for (let i = 0; i < FRAMES; i++){
-      const im = new Image();
-      im.onload = () => { try { sctx.drawImage(im, 0, 0); } catch(e){} settle(i); };
-      im.onerror = () => settle(i);
-      im.src = ASSET + 'stone_webp/stone_' + String(i).padStart(4,'0') + '.webp';
-      frames[i] = im;
+      const w = i % 8 === 0 ? 0 : i % 4 === 0 ? 1 : i % 2 === 0 ? 2 : 3;
+      waves[w].push(i);
+    }
+    const unlock = () => {
+      if (ready) return;
+      ready = true;
+      document.documentElement.style.overflow = '';
+      update();
+    };
+    function loadWave(w){
+      if (w >= waves.length) return;
+      let pending = waves[w].length;
+      const settle = (i) => {
+        if (i === 0) update();
+        if (--pending === 0){
+          if (w === 0) unlock();      // first wave in → the page is usable
+          drawn = -1; update();       // refine the parked frame as waves land
+          loadWave(w + 1);
+        }
+      };
+      waves[w].forEach((i) => {
+        const im = new Image();
+        im.onload = () => { try { sctx.drawImage(im, 0, 0); } catch(e){} loaded[i] = true; settle(i); };
+        im.onerror = () => settle(i);
+        im.src = ASSET + 'stone_webp_v2/stone_' + String(i).padStart(4,'0') + '.webp';
+        frames[i] = im;
+      });
+    }
+    loadWave(0);
+    // never leave scroll locked if the network stalls — 4s hard cap on the gate
+    setTimeout(unlock, 4000);
+
+    // nearest loaded frame to the wanted index (uniform ladder ⇒ ≤4 steps away)
+    function nearestLoaded(want){
+      if (loaded[want]) return want;
+      for (let d = 1; d < FRAMES; d++){
+        if (want - d >= 0     && loaded[want - d]) return want - d;
+        if (want + d < FRAMES && loaded[want + d]) return want + d;
+      }
+      return -1;
     }
 
     /* ---------- camera rects (rest-layout stage px) ----------
@@ -407,8 +440,8 @@
       }
 
       const want = Math.round(Math.min(1, p / SCRUB_END) * (FRAMES - 1));
-      const f = ready ? want : Math.min(want, 0);
-      if (f !== drawn && frames[f] && frames[f].complete){
+      const f = nearestLoaded(ready ? want : Math.min(want, 0));
+      if (f >= 0 && f !== drawn){
         ctx.clearRect(0, 0, cv.width, cv.height);
         ctx.drawImage(frames[f], 0, 0);
         drawn = f;

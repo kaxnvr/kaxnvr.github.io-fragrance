@@ -48,7 +48,7 @@
   <footer id="site-footer"></footer>
 
   <script src="/kaxnior-fragrance/data.js?v=35"></script>
-  <script src="/kaxnior-fragrance/site.js?v=37"></script>
+  <script src="/kaxnior-fragrance/site.js?v=38"></script>
   <script>
     // Which category's library are we reading? ?cat=Lip Balm etc. Defaults to Fragrance.
     const catParam = new URLSearchParams(location.search).get('cat') || 'Fragrance';
@@ -105,7 +105,7 @@
 
     document.getElementById('scent-rows').innerHTML = rows.map((r) => `
       <div class="scent-row reveal">
-        <a class="scent-vis" href="/kaxnior-fragrance/product.html?id=${r.id}"><img src="${r.img}" alt="${r.name}" loading="lazy"></a>
+        <a class="scent-vis" href="/kaxnior-fragrance/product.html?id=${r.id}"><img src="${window.KX_THUMB ? window.KX_THUMB(r.img) : r.img}" alt="${r.name}" loading="lazy"></a>
         <div>
           <p class="scent-fam">${r.family}</p>
           <h2 class="scent-name">${r.name}${r.no ? `<span class="no">No. ${r.no}</span>` : ''}</h2>

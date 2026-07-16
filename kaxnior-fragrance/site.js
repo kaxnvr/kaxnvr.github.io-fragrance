@@ -26,6 +26,11 @@
   // feather that backdrop colour outward around its thumb (CSS halo on .mega-thumb.bg-*)
   // so the photo doesn't end on a mismatched hard edge.
   const MEGA_THUMB_BG = { 'discovery-set': 'bg-discovery-set' };
+  // Small-display contexts (mega menu, bag, scent cards) load the 800px-wide
+  // proportional copies in img/thumb/ — same framing, ~10x lighter than the
+  // 2400px masters, which stay reserved for the PDP gallery.
+  const thumbSrc = (src) => src.replace('/img/', '/img/thumb/');
+  window.KX_THUMB = thumbSrc;
   function megaCard(id) {
     const p = PRODUCTS[id];
     // Eager (not lazy): mega thumbs live in a visibility:hidden panel, where native
@@ -34,7 +39,7 @@
     if (p && p.img) {
       const cls = p.fit === 'cover' ? 'cover' : 'lit';
       const bg = MEGA_THUMB_BG[id] ? ` ${MEGA_THUMB_BG[id]}` : '';
-      thumb = `<div class="mega-thumb ${cls}${bg}"><img src="${p.img}" alt="${p.name}" decoding="async"></div>`;
+      thumb = `<div class="mega-thumb ${cls}${bg}"><img src="${thumbSrc(p.img)}" alt="${p.name}" decoding="async"></div>`;
     } else {
       thumb = `<div class="mega-thumb ph"><div class="ph-icon">+</div><span class="ph-label">Visual Pending</span></div>`;
     }
@@ -235,7 +240,7 @@
       bagItemsEl.innerHTML = bag.map((i) => {
         const p = PRODUCTS[i.id]; if (!p) return '';
         const thumb = p.img
-          ? `<div class="bag-thumb ${p.fit === 'cover' ? 'cover' : ''}"><img src="${p.img}" alt="${p.name}"></div>`
+          ? `<div class="bag-thumb ${p.fit === 'cover' ? 'cover' : ''}"><img src="${thumbSrc(p.img)}" alt="${p.name}"></div>`
           : `<div class="bag-thumb ph">+</div>`;
         return `<div class="bag-item" data-id="${i.id}">
           ${thumb}
