@@ -484,7 +484,16 @@
       window.scrollTo({ top: heroSection.offsetHeight - innerHeight, behavior: 'smooth' });
     });
 
-    addEventListener('scroll', update, {passive:true});
+    // rAF-coalesce: Safari/trackpad momentum can fire many 'scroll' events between
+    // two paints — running the canvas draw + style writes on EVERY one is wasted
+    // work the display can't even show. Collapse bursts to one update() per frame.
+    let scrollQueued = false;
+    function onScroll(){
+      if (scrollQueued) return;
+      scrollQueued = true;
+      requestAnimationFrame(() => { scrollQueued = false; update(); });
+    }
+    addEventListener('scroll', onScroll, {passive:true});
     addEventListener('load', update);
     update();
   })();
