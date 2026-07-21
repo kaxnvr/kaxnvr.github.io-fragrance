@@ -145,9 +145,23 @@
     let cur = 0, currentTx = 0, landed = false, cardShown = false;
 
     function clampTx(tx) {
-      // never let the strip's edges pull inside the viewport
-      const minTx = Math.min(0, stage.clientWidth - track.scrollWidth);
-      return Math.max(minTx, Math.min(0, tx));
+      // Clamp to the PRODUCT-CENTRING range, not "strip covers the viewport".
+      // The old rule (keep both strip edges outside the viewport) meant that once
+      // the window got wide enough, the strip could no longer slide far enough to
+      // bring a product to the centre — at very wide/short windows it pinned the
+      // strip immovable (product stuck off-centre, arrow/drag dead). New bounds =
+      // the tx that centres the FIRST product (panel 1) down to the tx that centres
+      // the LAST product (panel 4). So every product always lands dead-centre and
+      // the active one can never drift off-centre; the trade-off is studio wall
+      // (cam bg, same #f1f2f1) showing past the strip ends at wide aspects, which
+      // the user chose over an off-centre product. On normal/narrow windows the
+      // strip is far wider than the viewport, so this range reveals no wall — it
+      // just stops over-dragging past the first/last product into the end buffers.
+      const firstP = panels[items[0].panel];
+      const lastP  = panels[items[items.length - 1].panel];
+      const maxTx = stage.clientWidth / 2 - (firstP.offsetLeft + firstP.offsetWidth / 2);
+      const minTx = stage.clientWidth / 2 - (lastP.offsetLeft + lastP.offsetWidth / 2);
+      return Math.max(minTx, Math.min(maxTx, tx));
     }
     function positionCard(tx) {
       let nearestIdx = 0, nearestDist = Infinity;
